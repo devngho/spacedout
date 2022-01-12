@@ -5,6 +5,7 @@ import com.nghodev.spacedout.config.Config
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
 
 
@@ -28,5 +29,9 @@ class Event : Listener {
     @EventHandler
     fun onSave(_event: WorldSaveEvent){
         Config.saveConfigs()
+    }
+    @EventHandler
+    fun onJoin(event: PlayerJoinEvent){
+        event.player.setResourcePack("", "", true)
     }
 }
