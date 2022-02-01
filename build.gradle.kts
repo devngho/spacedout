@@ -25,3 +25,15 @@ dependencies {
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
+
+publishing {
+    publications {
+        create <MavenPublication>("maven") {
+            groupId = "com.github.devngho"
+            artifactId = "spacedout"
+            version = "v0.1-alpha2"
+
+            from(components["kotlin"])
+        }
+    }
+}
