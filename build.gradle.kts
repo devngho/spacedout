@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
 }
 
-group = "com.nghodev"
+group = "com.github.devngho"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
-    implementation("dev.triumphteam:triumph-gui:3.0.1")
+    implementation("dev.triumphteam:triumph-gui:3.1.1")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.5.3")
 }
 
