@@ -2,8 +2,15 @@ package com.nghodev.spacedout.event
 
 import com.nghodev.spacedout.buildable.BuildableManager
 import com.nghodev.spacedout.config.Config
+import com.nghodev.spacedout.config.PlayerData
+import com.nghodev.spacedout.equipment.EquipmentManager
+import com.nghodev.spacedout.rocket.RocketManager
+import net.kyori.adventure.text.Component
+import org.bukkit.Location
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
@@ -27,11 +34,46 @@ class Event : Listener {
         }
     }
     @EventHandler
-    fun onSave(_event: WorldSaveEvent){
+    fun onSave(event: WorldSaveEvent){
         Config.saveConfigs()
+        PlayerData.savePlayerData()
     }
     @EventHandler
     fun onJoin(event: PlayerJoinEvent){
-        event.player.setResourcePack("", "", true)
+        event.player.setResourcePack("https://github.com/devngho/spacedout/releases/latest/download/resourcepack.zip", "", true, Component.text("Spacedout 플러그인 아이템의 렌더링을 위해 리소스팩을 적용해야 합니다."))
+        EquipmentManager.generatePlayerGui(event.player)
+        if(!event.player.hasPlayedBefore()){
+            PlayerData.initPlayerData(event.player.uniqueId)
+        }
+    }
+    @EventHandler
+    fun onBreakAtRocket(event: BlockBreakEvent){
+        val loc = event.block.location.toVector()
+        loc.y = 0.0
+        event.isCancelled = RocketManager.rockets.find {
+            val rocketRawLoc = it.installedLocation
+            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+            rocketLocation.y = 0.0
+            var check = loc.distance(rocketLocation.toVector()) <= 3
+            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                check = false
+            }
+            check
+        } != null
+    }
+    @EventHandler
+    fun onPlaceAtRocket(event: BlockPlaceEvent){
+        val loc = event.block.location.toVector()
+        loc.y = 0.0
+        event.isCancelled = RocketManager.rockets.find {
+            val rocketRawLoc = it.installedLocation
+            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+            rocketLocation.y = 0.0
+            var check = loc.distance(rocketLocation.toVector()) <= 3
+            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                check = false
+            }
+            check
+        } != null
     }
 }

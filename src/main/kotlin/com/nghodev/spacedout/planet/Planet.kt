@@ -1,5 +1,6 @@
 package com.nghodev.spacedout.planet
 
+import com.nghodev.spacedout.equipment.Equipment
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.configuration.ConfigurationSection
@@ -40,6 +41,11 @@ interface Planet {
      * 행성의 설명입니다.
      */
     val description: String
+
+    /**
+     * 행성에 가려면 필요한 방호구들의 목록입니다.
+     */
+    val needEquipments: MutableList<Equipment>
 
     /**
      * 월드를 설정할 수 있도록 행성의 월드가 생성되면 호출됩니다.

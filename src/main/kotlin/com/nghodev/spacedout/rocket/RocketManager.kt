@@ -4,14 +4,13 @@ import org.bukkit.Location
 
 object RocketManager {
     var rockets: MutableList<RocketDevice> = mutableListOf()
-    var rocketEngines: MutableList<Engine> = mutableListOf(CoalEngine())
     fun createRocketWithName(rocketName: String, location: Location): RocketDevice {
-        val device = RocketDevice(rocketEngines.find { it.name == rocketName }!!, location)
+        val device = RocketDevice(ModuleManager.modules.find { it.name == rocketName && it.moduleType == ModuleType.ENGINE && it is Engine }!! as Engine, location)
         rockets.add(device)
         return device
     }
     fun createRocketWithInstaller(rocketName: String, location: Location): RocketDevice {
-        val device = RocketDevice(rocketEngines.find { it.codeName == rocketName }!!, location)
+        val device = RocketDevice(ModuleManager.modules.find { it.id == rocketName && it.moduleType == ModuleType.ENGINE && it is Engine }!! as Engine, location)
         rockets.add(device)
         return device
     }

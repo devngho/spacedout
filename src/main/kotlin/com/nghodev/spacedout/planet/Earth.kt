@@ -1,5 +1,6 @@
 package com.nghodev.spacedout.planet
 
+import com.nghodev.spacedout.equipment.Equipment
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.configuration.ConfigurationSection
@@ -14,6 +15,7 @@ class Earth : Planet {
     override var graphicMaterial: Material = Material.GRASS_BLOCK
     override var worldBorderSize: Double = 0.0
     override var description: String = "우리의 고향."
+    override val needEquipments: MutableList<Equipment> = mutableListOf()
     override fun configWorld(world: World) {
 
     }

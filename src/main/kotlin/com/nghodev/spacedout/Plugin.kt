@@ -1,10 +1,13 @@
 package com.nghodev.spacedout
 
-import com.nghodev.spacedout.event.Event
-import com.nghodev.spacedout.buildable.BuildableManager
 import com.nghodev.spacedout.config.Config
+import com.nghodev.spacedout.config.PlayerData
+import com.nghodev.spacedout.equipment.EquipmentManager
+import com.nghodev.spacedout.equipment.Jetpack
+import com.nghodev.spacedout.equipment.toItemStack
+import com.nghodev.spacedout.event.Event
 import com.nghodev.spacedout.planet.*
-import com.nghodev.spacedout.rocket.RocketManager
+import com.nghodev.spacedout.rocket.*
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
@@ -19,26 +22,29 @@ import org.bukkit.plugin.java.JavaPlugin
 class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
-        Instance.server = server
-        Instance.plugin = this
         server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
-        registerPlanets()
-        registerBuildable()
-        Config.loadConfigs()
-        PlanetManager.generateWorlds()
+        // PlanetManager.generateWorlds()
     }
 
     override fun onLoad() {
         super.onLoad()
+        Instance.server = server
+        Instance.plugin = this
+        registerPlanets()
+        registerModules()
+        registerBuildable()
+        registerEquipments()
+        Config.loadConfigs()
+        PlayerData.loadAll()
         // 커맨드 등록
         CommandAPICommand("spacedout")
             .withSubcommand(CommandAPICommand("rocket")
-                    .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { RocketManager.rocketEngines.map { it.codeName }.toTypedArray() }).executesPlayer(
+                    .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray() }).executesPlayer(
                             PlayerCommandExecutor { sender, args ->
-                                val engine = RocketManager.rocketEngines.find { it.codeName == args[0] }
+                                val engine = ModuleManager.modules.find { it.id== args[0] && it.moduleType == ModuleType.ENGINE && it is Engine }
                                 if (engine != null) {
-                                    val rocketDevice = RocketManager.createRocketWithName(engine.name, sender.location)
+                                    val rocketDevice = RocketManager.createRocketWithName(engine.name, sender.location.toBlockLocation())
                                     rocketDevice.render()
                                 }
                             }
@@ -54,21 +60,33 @@ class Plugin : JavaPlugin() {
             )
             .withSubcommand(CommandAPICommand("config")
                 .withSubcommand(CommandAPICommand("reload")
-                    .withSubcommand(CommandAPICommand("planets")
+                    .withSubcommand(CommandAPICommand("all")
                         .executes(CommandExecutor { sender, _ ->
-                            PlanetManager.planets.forEach {
-                                it.first.loadPlanetConfig(Config.configConfiguration.getConfigurationSection("planet.${it.first.codeName}")!!)
-                            }
-                            sender.sendMessage(Component.text("Planet config reloaded!").color(TextColor.color(0, 255, 0)))
+                            Config.loadConfigs()
+                            sender.sendMessage(Component.text("Spacedout Plugin Config reloaded!").color(TextColor.color(0, 255, 0)))
                         }))
                     .withSubcommand(CommandAPICommand("save")
                         .executes(CommandExecutor { sender, _ ->
                             Config.saveConfigs()
-                            sender.sendMessage(Component.text("Planet config saved!").color(TextColor.color(0, 255, 0)))
+                            sender.sendMessage(Component.text("Spacedout Plugin config saved!").color(TextColor.color(0, 255, 0)))
                         })
                     )
                 )
             )
+            .withSubcommand(CommandAPICommand("equip")
+                .withSubcommand(CommandAPICommand("inv")
+                    .executesPlayer(PlayerCommandExecutor { sender, _ ->
+                        EquipmentManager.playerEquipmentGui[sender.uniqueId]?.open(sender)
+                    })
+                )
+                .withSubcommand(CommandAPICommand("give")
+                    .withArguments(StringArgument("equip").includeSuggestions { EquipmentManager.equipments.map { it.id }.toTypedArray() })
+                    .executesPlayer(PlayerCommandExecutor { sender, args ->
+                        val found = EquipmentManager.equipments.find { it.id == args[0] }
+                        if (found != null){
+                            sender.inventory.addItem(found.toItemStack())
+                        }
+                    })))
             .register()
     }
 
@@ -83,8 +101,18 @@ class Plugin : JavaPlugin() {
         PlanetManager.planets += Pair(Mercury(), null)
         PlanetManager.planets += Pair(Venus(), null)
         PlanetManager.planets += Pair(Mars(), null)
+        PlanetManager.planets += Pair(Jupiter(), null)
         PlanetManager.planets += Pair(Earth(), server.getWorld("world"))
     }
+    private fun registerModules(){
+        ModuleManager.modules += CoalEngine()
+        ModuleManager.modules += LavaEngine()
+        ModuleManager.modules += ControlModule()
+        ModuleManager.modules += StandardNosecone()
+    }
     private fun registerBuildable(){
+    }
+    private fun registerEquipments(){
+        EquipmentManager.equipments += Jetpack()
     }
 }

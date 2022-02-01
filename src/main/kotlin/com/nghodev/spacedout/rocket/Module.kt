@@ -2,8 +2,13 @@ package com.nghodev.spacedout.rocket
 
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.configuration.ConfigurationSection
 
 interface Module {
+    /**
+     * 모듈의 아이디입니다.
+     */
+    val id: String
     /**
      * 모듈의 중량입니다.
      */
@@ -38,7 +43,25 @@ interface Module {
     fun render(rocket: RocketDevice, position: Location)
 
     /**
+     * 모듈을 로켓에 추가할 때 새 인스턴스를 만들 때 호출될 함수입니다.
+     * this를 반환하지 말고 기본 상태의 새로운 인스턴스를 반환하세요.
+     */
+    fun newInstance(): Module
+
+    /**
      * 모듈의 종류입니다.
      */
     val moduleType: ModuleType
+
+    /**
+     * 모듈의 설정 값을 초기화합니다.
+     * @param configurationSection 해당 행성의 컨피그 섹션입니다.
+     */
+    fun initModuleConfig(configurationSection: ConfigurationSection)
+
+    /**
+     * 모듈의 설정 값을 읽어들입니다.
+     * @param configurationSection 해당 행성의 컨피그 섹션입니다.
+     */
+    fun loadModuleConfig(configurationSection: ConfigurationSection)
 }

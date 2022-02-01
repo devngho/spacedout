@@ -1,6 +1,5 @@
 package com.nghodev.spacedout.planet
 
-import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.WorldCreator
 import org.bukkit.WorldType
@@ -13,7 +12,7 @@ object PlanetManager {
     var planets: MutableList<Pair<Planet, World?>> = mutableListOf()
 
     fun generateWorlds(){
-        planets.mapTo (planets) {
+        val newPlanets = planets.map {
             if (it.second == null){
                 val planet = it.first
                 val wc = WorldCreator(planet.codeName)
@@ -28,5 +27,6 @@ object PlanetManager {
                 Pair(it.first, it.second)
             }
         }
+        planets = newPlanets.toMutableList()
     }
 }

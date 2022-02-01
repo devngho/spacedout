@@ -1,7 +1,7 @@
 package com.nghodev.spacedout.planet
 
+import com.nghodev.spacedout.equipment.Equipment
 import org.bukkit.GameRule
-import org.bukkit.HeightMap
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Biome
@@ -63,4 +63,5 @@ class Mercury : Planet{
     override var pos: UInt = 5000u
     override var graphicMaterial: Material = Material.BLACKSTONE
     override var worldBorderSize = 256.0
+    override val needEquipments: MutableList<Equipment> = mutableListOf()
 }

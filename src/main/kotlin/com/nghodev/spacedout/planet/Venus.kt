@@ -1,7 +1,7 @@
 package com.nghodev.spacedout.planet
 
+import com.nghodev.spacedout.equipment.Equipment
 import org.bukkit.GameRule
-import org.bukkit.HeightMap
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Biome
@@ -17,7 +17,7 @@ import java.util.*
 class Venus : Planet{
     class VenusGenerator : ChunkGenerator() {
         private val prePopulators: List<PregeneratedPopulator> = listOf(OrePopulator(10, 40, 30, Material.RAW_GOLD_BLOCK,
-            listOf(Material.BASALT), 40, 10))
+            listOf(Material.BASALT), 20, 40))
         override fun getDefaultBiomeProvider(worldInfo: WorldInfo): BiomeProvider {
             return OneBiomeProvider(Biome.CRIMSON_FOREST)
         }
@@ -31,7 +31,7 @@ class Venus : Planet{
                     (chunkZ * 16 + Z).toDouble(),
                     0.5,
                     0.5
-                ) * 15.0 + 40.0).toInt()
+                ) * 30.0 + 20.0).toInt()
                 for (i in currentHeight downTo currentHeight - 15) chunk.setBlock(X, i, Z, Material.BASALT)
                 for (i in currentHeight - 15 downTo 1) chunk.setBlock(X, i, Z, Material.LAVA)
                 chunk.setBlock(X, 0, Z, Material.BEDROCK)
@@ -61,10 +61,11 @@ class Venus : Planet{
         worldBorderSize = configurationSection.getDouble("worldbordersize", 384.0)
     }
     override var name: String = "금성"
-    override val codeName: String = "veuns"
+    override val codeName: String = "venus"
     override var description: String = "이 행성은 금 원석 블럭이 많이 분포해 있습니다."
     override val chunkGenerator: ChunkGenerator = VenusGenerator()
     override var pos: UInt = 10000u
     override var graphicMaterial: Material = Material.BASALT
     override var worldBorderSize = 384.0
+    override val needEquipments: MutableList<Equipment> = mutableListOf()
 }

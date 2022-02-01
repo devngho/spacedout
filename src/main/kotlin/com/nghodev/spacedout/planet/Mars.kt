@@ -1,7 +1,7 @@
 package com.nghodev.spacedout.planet
 
+import com.nghodev.spacedout.equipment.Equipment
 import org.bukkit.GameRule
-import org.bukkit.HeightMap
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Biome
@@ -10,7 +10,6 @@ import org.bukkit.generator.BiomeProvider
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.generator.WorldInfo
 import org.bukkit.util.noise.PerlinOctaveGenerator
-import org.bukkit.util.noise.SimplexOctaveGenerator
 import java.util.*
 
 
@@ -76,4 +75,5 @@ class Mars : Planet{
     override var pos: UInt = 20000u
     override var graphicMaterial: Material = Material.SAND
     override var worldBorderSize = 256.0
+    override val needEquipments: MutableList<Equipment> = mutableListOf()
 }

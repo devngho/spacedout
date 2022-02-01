@@ -1,5 +1,6 @@
 package com.nghodev.spacedout.rocket
 
+import com.nghodev.spacedout.equipment.EquipmentManager
 import com.nghodev.spacedout.planet.Planet
 import com.nghodev.spacedout.planet.PlanetManager
 import dev.triumphteam.gui.builder.item.ItemBuilder
@@ -41,7 +42,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
      * 모듈을 처리합니다.
      */
     fun tick(){
-        installedLocation.getNearbyPlayers(10.0).filter { it.isSneaking }.forEach { p ->
+        installedLocation.getNearbyPlayers(5.0).filter { it.isSneaking }.forEach { p ->
             //로켓 UI 렌더
             val gui = Gui.gui()
                 .title(Component.text("로켓").decoration(TextDecoration.ITALIC, false))
@@ -54,6 +55,48 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
             modules.forEachIndexed { idx, item ->
                 gui.setItem(1, idx+2, ItemBuilder.from(item.graphicMaterial).name(Component.text(item.name).decoration(TextDecoration.ITALIC, false)).asGuiItem())
             }
+            val moduleAdder = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("모듈 추가").decoration(TextDecoration.ITALIC, false)).asGuiItem()
+            moduleAdder.setAction {
+                val moduleAdderGui = Gui.scrolling(ScrollType.HORIZONTAL)
+                    .title(Component.text("추가할 모듈").decoration(TextDecoration.ITALIC, false))
+                    .rows(1)
+                    .pageSize(9)
+                    .create()
+                moduleAdderGui.setItem(
+                    1,
+                    1,
+                    ItemBuilder.from(Material.PAPER).name(Component.text("이전").decoration(TextDecoration.ITALIC, false))
+                        .asGuiItem { moduleAdderGui.previous() })
+                moduleAdderGui.setItem(
+                    1,
+                    9,
+                    ItemBuilder.from(Material.PAPER).name(Component.text("다음").decoration(TextDecoration.ITALIC, false))
+                        .asGuiItem { moduleAdderGui.next() })
+                ModuleManager.modules.forEach {
+                    val moduleItem = ItemBuilder.from(it.graphicMaterial).name(Component.text(it.name).decoration(TextDecoration.ITALIC, false).color(
+                        TextColor.color(255, 255, 255)))
+                    val moduleLore = mutableListOf<Component>()
+                    moduleLore += if (ModuleManager.isPlaceable(engine, modules, it)){
+                        Component.text("설치 가능").color(TextColor.color(29, 219, 22)).decoration(TextDecoration.ITALIC, false)
+                    }else{
+                        Component.text("설치 불가능").color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
+                    }
+                    moduleLore += Component.text("모듈 중량 : ${it.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
+                    moduleItem.lore(moduleLore)
+                    moduleAdderGui.addItem(moduleItem.asGuiItem { e ->
+                        if (ModuleManager.isPlaceable(engine, modules, it)) {
+                            this.modules.add(it.newInstance())
+                            this.render()
+                            moduleAdderGui.close(e.whoClicked)
+                        }
+                    })
+                }
+                moduleAdderGui.setDefaultClickAction { event ->
+                    event.isCancelled = true
+                }
+                moduleAdderGui.open(p)
+            }
+            gui.setItem(1, 9, moduleAdder)
             val planetSetting = ItemBuilder.from(reachPlanet?.graphicMaterial ?: Material.GREEN_STAINED_GLASS_PANE).name(Component.text("행성").decoration(TextDecoration.ITALIC, false)).asGuiItem()
             planetSetting.setAction { e ->
                     //행성 리스트 UI 렌더
@@ -82,11 +125,21 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
                         val distance = abs(
                             (PlanetManager.planets.find { p -> p.second?.name == installedLocation.world.name }?.first?.pos?.toInt() ?: 0) - (it.first.pos.toInt())
                         )
+                        planetLore += Component.text(it.first.description).decoration(TextDecoration.ITALIC, false).color(
+                            TextColor.color(255, 255, 255))
                         planetLore += Component.text("거리 : ${distance}km").decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 255, 255))
+                        planetLore += Component.text("필요 방호구 : ${it.first.needEquipments.joinToString(postfix = ", ") { j -> j.name }}").decoration(TextDecoration.ITALIC, false).color(
+                            TextColor.color(255, 255, 255))
                         planetLore += if (distance <= fuelHeight * engine.fuelDistanceRatio){
                             Component.text("도달 가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
                         }else{
                             Component.text("도달 불가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
+                        }
+                        val equips = EquipmentManager.getPlayerEquipments(p)
+                        planetLore += if (it.first.needEquipments.count { c -> !equips.containsValue(c) } == 0){
+                            Component.text("방호복 충분함").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
+                        }else{
+                            Component.text("방호복 불충분").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
                         }
                         planetItem.lore(planetLore)
                         val planetGuiItem = planetItem.asGuiItem()
