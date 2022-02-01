@@ -1,4 +1,4 @@
-main: com.nghodev.spacedout.Plugin
+main: com.github.devngho.spacedout.Plugin
 name: spacedout
 version: 1.0-SNAPSHOT
 api-version: 1.18
