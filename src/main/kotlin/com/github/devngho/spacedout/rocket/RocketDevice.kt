@@ -42,7 +42,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
      * 모듈을 처리합니다.
      */
     fun tick(){
-        installedLocation.getNearbyPlayers(5.0).filter { it.isSneaking }.forEach { p ->
+        installedLocation.getNearbyPlayers(4.0).filter { it.isSneaking }.forEach { p ->
             //로켓 UI 렌더
             val gui = Gui.gui()
                 .title(Component.text("로켓").decoration(TextDecoration.ITALIC, false))
