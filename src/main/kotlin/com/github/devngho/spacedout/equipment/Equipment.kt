@@ -27,7 +27,9 @@ fun Equipment.toItemStack(): ItemStack{
             EquipmentType.CHESTPLATE -> "갑옷"
             EquipmentType.BOOTS -> "부츠"
         }).decoration(TextDecoration.ITALIC, false)
-            .color(TextColor.color(255, 255, 255))))
+            .color(TextColor.color(255, 255, 255)),
+            Component.text("from. ${this@toItemStack.addedAddon.name}").color(TextColor.color(127, 127, 127)))
+        )
     }
     return item
 }

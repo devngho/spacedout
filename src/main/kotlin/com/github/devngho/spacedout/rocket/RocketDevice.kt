@@ -53,7 +53,10 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
             }
             gui.setItem(1, 1, ItemBuilder.from(Material.GREEN_STAINED_GLASS_PANE).name(Component.text("모듈 (총 중량 $height )").decoration(TextDecoration.ITALIC, false)).asGuiItem())
             modules.forEachIndexed { idx, item ->
-                gui.setItem(1, idx+2, ItemBuilder.from(item.graphicMaterial).name(Component.text(item.name).decoration(TextDecoration.ITALIC, false)).asGuiItem())
+                gui.setItem(1, idx+2, ItemBuilder.from(item.graphicMaterial).name(Component.text(item.name).decoration(TextDecoration.ITALIC, false)).lore(
+                    listOf(Component.text("모듈 중량 : ${item.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false),
+                        Component.text("from. ${item.name}").color(TextColor.color(127, 127, 127)))
+                ).asGuiItem())
             }
             val moduleAdder = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("모듈 추가").decoration(TextDecoration.ITALIC, false)).asGuiItem()
             moduleAdder.setAction {
@@ -82,6 +85,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
                         Component.text("설치 불가능").color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
                     }
                     moduleLore += Component.text("모듈 중량 : ${it.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
+                    moduleLore += Component.text("from. ${it.addedAddon.name}").color(TextColor.color(127, 127, 127))
                     moduleItem.lore(moduleLore.toList())
                     moduleAdderGui.addItem(moduleItem.asGuiItem { e ->
                         if (ModuleManager.isPlaceable(engine, modules, it)) {
@@ -141,6 +145,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
                         }else{
                             Component.text("방호복 불충분").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
                         }
+                        planetLore += Component.text("from. ${it.first.addedAddon.name}").color(TextColor.color(127, 127, 127))
                         planetItem.lore(planetLore.toList())
                         val planetGuiItem = planetItem.asGuiItem()
                         planetGuiItem.setAction { _ ->
