@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.planet
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import org.bukkit.GameRule
 import org.bukkit.Material
@@ -64,4 +66,6 @@ class Mercury : Planet{
     override var graphicMaterial: Material = Material.BLACKSTONE
     override var worldBorderSize = 256.0
     override val needEquipments: MutableList<Equipment> = mutableListOf()
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
 }

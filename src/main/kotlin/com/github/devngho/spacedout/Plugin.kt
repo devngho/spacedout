@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout
 
+import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.PlayerData
 import com.github.devngho.spacedout.equipment.EquipmentManager
@@ -12,9 +13,14 @@ import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
+import dev.triumphteam.gui.builder.item.ItemBuilder
+import dev.triumphteam.gui.components.ScrollType
+import dev.triumphteam.gui.guis.Gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -87,6 +93,30 @@ class Plugin : JavaPlugin() {
                             sender.inventory.addItem(found.toItemStack())
                         }
                     })))
+            .withSubcommand(CommandAPICommand("addon")
+                .withSubcommand(CommandAPICommand("list")
+                    .executesPlayer(PlayerCommandExecutor { sender, _ ->
+                        val addonGui = Gui.scrolling(ScrollType.HORIZONTAL)
+                            .title(Component.text("애드온 목록").decoration(TextDecoration.ITALIC, false))
+                            .rows(1)
+                            .pageSize(9)
+                            .create()
+                        addonGui.setItem(
+                            1,
+                            1,
+                            ItemBuilder.from(Material.PAPER).name(Component.text("이전").decoration(TextDecoration.ITALIC, false))
+                                .asGuiItem { addonGui.previous() })
+                        addonGui.setItem(
+                            1,
+                            9,
+                            ItemBuilder.from(Material.PAPER).name(Component.text("다음").decoration(TextDecoration.ITALIC, false))
+                                .asGuiItem { addonGui.next() })
+                        AddonManager.addons.forEach {
+                            addonGui.addItem(ItemBuilder.from(it.graphicMaterial).lore(it.description).asGuiItem())
+                        }
+                        addonGui.open(sender)
+                    }))
+            )
             .register()
     }
 

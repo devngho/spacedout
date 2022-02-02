@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -36,4 +38,6 @@ class StandardNosecone : Module {
     override fun newInstance(): Module {
         return StandardNosecone()
     }
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
 }

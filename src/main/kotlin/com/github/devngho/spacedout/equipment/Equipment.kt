@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout.equipment
 
+import com.github.devngho.spacedout.addon.Addon
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -12,6 +13,7 @@ interface Equipment {
     val name: String
     val graphicMaterial: Material
     val customModelData: Int
+    val addedAddon: Addon
 }
 
 fun Equipment.toItemStack(): ItemStack{

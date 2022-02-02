@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -13,6 +15,8 @@ class ControlModule : Module {
     override var height: Int = 10
     override var graphicMaterial: Material = Material.CALCITE
     override val moduleType: ModuleType = ModuleType.NORMAL
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
 
     override fun render(rocket: RocketDevice, position: Location) {
         for(y in 0..sizeY) {

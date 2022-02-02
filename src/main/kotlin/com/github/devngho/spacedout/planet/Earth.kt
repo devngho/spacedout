@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.planet
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import org.bukkit.Material
 import org.bukkit.World
@@ -16,6 +18,8 @@ class Earth : Planet {
     override var worldBorderSize: Double = 0.0
     override var description: String = "우리의 고향."
     override val needEquipments: MutableList<Equipment> = mutableListOf()
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
     override fun configWorld(world: World) {
 
     }

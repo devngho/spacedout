@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout.buildable
 
+import com.github.devngho.spacedout.addon.Addon
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.player.PlayerInteractEvent
@@ -12,6 +13,7 @@ interface Buildable {
     val recipeShape: List<String>
     val recipeItem: List<Pair<Char, Material>>
     val displayBlock: Material
+    val addedAddon: Addon
     fun interact(event: PlayerInteractEvent)
     fun clone(location: Location): Buildable
 }

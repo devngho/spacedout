@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.fuel.Fuel
 import org.bukkit.Location
 import org.bukkit.Material
@@ -18,6 +20,8 @@ class CoalEngine() : Engine {
     override val maxReachableDistance: UInt = 20000u
     override var fuelDistanceRatio: Double = 50.0
     override val moduleType: ModuleType = ModuleType.ENGINE
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
     override fun initModuleConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("height", 5)
         configurationSection.set("maxfuelheight", 100)

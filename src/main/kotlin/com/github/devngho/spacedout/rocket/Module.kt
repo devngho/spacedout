@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -64,4 +66,9 @@ interface Module {
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
      */
     fun loadModuleConfig(configurationSection: ConfigurationSection)
+
+    /**
+     * 모듈을 추가한 애드온입니다.
+     */
+    val addedAddon: Addon
 }

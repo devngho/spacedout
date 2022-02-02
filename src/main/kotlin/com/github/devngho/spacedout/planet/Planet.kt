@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout.planet
 
+import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.equipment.Equipment
 import org.bukkit.Material
 import org.bukkit.World
@@ -64,4 +65,9 @@ interface Planet {
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
      */
     fun loadPlanetConfig(configurationSection: ConfigurationSection)
+
+    /**
+     * 행성을 추가한 애드온입니다.
+     */
+    val addedAddon: Addon
 }

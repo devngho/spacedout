@@ -1,5 +1,7 @@
 package com.github.devngho.spacedout.planet
 
+import com.github.devngho.spacedout.addon.Addon
+import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.Jetpack
 import org.bukkit.GameRule
@@ -73,4 +75,6 @@ class Jupiter : Planet{
     override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER
     override var worldBorderSize = 1024.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack())
+    override val addedAddon: Addon
+        get() = AddonManager.spacedoutAddon
 }
