@@ -6,6 +6,7 @@ import com.github.devngho.spacedout.config.PlayerData
 import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.Jetpack
+import com.github.devngho.spacedout.equipment.OxyzenMask
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.*
@@ -150,5 +151,6 @@ class Plugin : JavaPlugin() {
     }
     private fun registerEquipments(){
         EquipmentManager.equipments += Jetpack()
+        EquipmentManager.equipments += OxyzenMask()
     }
 }
