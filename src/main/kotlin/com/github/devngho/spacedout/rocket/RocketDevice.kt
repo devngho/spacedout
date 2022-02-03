@@ -14,11 +14,12 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.round
 
 
-class RocketDevice(val engine: Engine, val installedLocation: Location){
+class RocketDevice(val engine: Engine, val installedLocation: Location, val uniqueId: UUID){
     val height: Int
             get() {
                 return modules.sumOf { it.height }
@@ -53,10 +54,34 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
             }
             gui.setItem(1, 1, ItemBuilder.from(Material.GREEN_STAINED_GLASS_PANE).name(Component.text("모듈 (총 중량 $height )").decoration(TextDecoration.ITALIC, false)).asGuiItem())
             modules.forEachIndexed { idx, item ->
+                val moduleItemLore = mutableListOf(Component.text("모듈 중량 : ${item.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false))
+                if (item.moduleType != ModuleType.ENGINE) moduleItemLore += Component.text("우클릭해 모듈 제거").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
+                moduleItemLore += Component.text("from. ${item.addedAddon.name}").color(TextColor.color(127, 127, 127))
                 gui.setItem(1, idx+2, ItemBuilder.from(item.graphicMaterial).name(Component.text(item.name).decoration(TextDecoration.ITALIC, false)).lore(
-                    listOf(Component.text("모듈 중량 : ${item.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false),
-                        Component.text("from. ${item.name}").color(TextColor.color(127, 127, 127)))
-                ).asGuiItem())
+                    moduleItemLore.toList()
+                ).asGuiItem {
+                    if (it.isRightClick && item.moduleType != ModuleType.ENGINE){
+                        item.buildRequires.forEach { b ->
+                            it.whoClicked.world.dropItem(it.whoClicked.location, ItemStack(b.first, b.second))
+                        }
+                        modules.removeAt(idx)
+                        for (x in -3..3){
+                            for (y in -3..3){
+                                for (z in 0..modules.sumOf { s -> s.sizeY } + item.sizeY){
+                                    val resetLocation = installedLocation.clone()
+                                    resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
+                                    val checkLocation = installedLocation.clone()
+                                    checkLocation.add(x.toDouble(), 0.0, y.toDouble())
+                                    if (installedLocation.distance(checkLocation) <= 3){
+                                        resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
+                                    }
+                                }
+                            }
+                        }
+                        render()
+                        gui.close(it.whoClicked)
+                    }
+                })
             }
             val moduleAdder = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("모듈 추가").decoration(TextDecoration.ITALIC, false)).asGuiItem()
             moduleAdder.setAction {
@@ -138,6 +163,11 @@ class RocketDevice(val engine: Engine, val installedLocation: Location){
                             Component.text("도달 가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
                         }else{
                             Component.text("도달 불가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
+                        }
+                        planetLore += if (distance * 2 <= fuelHeight * engine.fuelDistanceRatio){
+                            Component.text("왕복 가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
+                        }else{
+                            Component.text("왕복 불가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
                         }
                         val equips = EquipmentManager.getPlayerEquipments(p)
                         planetLore += if (it.first.needEquipments.count { c -> !equips.containsValue(c) } == 0){

@@ -4,6 +4,7 @@ import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.Jetpack
+import com.github.devngho.spacedout.equipment.OxyzenMask
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -25,6 +26,7 @@ class Jupiter : Planet{
         override fun getDefaultBiomeProvider(worldInfo: WorldInfo): BiomeProvider {
             return OneBiomeProvider(Biome.BASALT_DELTAS)
         }
+        @Suppress("DEPRECATION")
         override fun generateChunkData(world: World, random: Random, chunkX: Int, chunkZ: Int, biome: BiomeGrid): ChunkData {
             val generator = PerlinOctaveGenerator(Random(world.seed), 8)
             generator.setScale(0.05)
@@ -74,7 +76,7 @@ class Jupiter : Planet{
     override var pos: UInt = 40000u
     override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER
     override var worldBorderSize = 1024.0
-    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack())
+    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
 }

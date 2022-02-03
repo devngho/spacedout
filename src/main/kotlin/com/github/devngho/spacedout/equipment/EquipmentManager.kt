@@ -17,10 +17,13 @@ object EquipmentManager {
     fun getPlayerEquipments(player: Player): MutableMap<EquipmentType, Equipment> {
         val playerEquipments = mutableMapOf<EquipmentType, Equipment>()
         val playerData = PlayerData.getPlayerData(player.uniqueId).getConfigurationSection("player.equip")
-        for (key in playerData?.getKeys(false)!!) {
-            val eq = equipments.find { playerData.getString(key) == it.id}
-            if (eq != null) {
-                playerEquipments[EquipmentType.values().find { it.name == key }!!] = eq
+        val k = playerData?.getKeys(false)
+        if (k != null) {
+            for (key in k) {
+                val eq = equipments.find { playerData.getString(key) == it.id }
+                if (eq != null) {
+                    playerEquipments[EquipmentType.values().find { it.name == key }!!] = eq
+                }
             }
         }
         return playerEquipments

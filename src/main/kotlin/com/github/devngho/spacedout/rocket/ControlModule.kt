@@ -8,7 +8,7 @@ import org.bukkit.configuration.ConfigurationSection
 
 class ControlModule : Module {
     var isRided = false
-    override val id: String = "controlengine"
+    override val id: String = "controlmodule"
     override var name: String = "탑승 모듈"
     override val sizeY: Int = 3
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.STONE, 30), Pair(Material.IRON_INGOT, 5))
@@ -19,7 +19,7 @@ class ControlModule : Module {
         get() = AddonManager.spacedoutAddon
 
     override fun render(rocket: RocketDevice, position: Location) {
-        for(y in 0..sizeY) {
+        for(y in 0 until sizeY) {
             for (x in -1..1) {
                 for (z in -1..1) {
                     position.clone().add(x.toDouble(), y.toDouble(), z.toDouble()).block.type = Material.IRON_BLOCK
@@ -42,4 +42,8 @@ class ControlModule : Module {
         name = configurationSection.getString("name", "탑승 모듈").toString()
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "CALCITE")!!.uppercase(), false) ?: Material.CALCITE
     }
+    override fun loadModuleValue(map: MutableMap<Any, Any>) {
+        isRided = map.getOrDefault("isrided", false) as Boolean
+    }
+    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf(Pair("isrided", isRided)) }
 }

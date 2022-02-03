@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 
 object AddonManager {
-    val addons: MutableList<Addon> = mutableListOf()
     val spacedoutAddon: Addon = object:Addon{
         override val name: String = "Spacedout"
         override val id: String = "spacedout"
@@ -17,4 +16,5 @@ object AddonManager {
         )
         override val graphicMaterial: Material = Material.END_STONE
     }
+    val addons: MutableList<Addon> = mutableListOf(spacedoutAddon)
 }

@@ -40,4 +40,6 @@ class StandardNosecone : Module {
     }
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
+    override fun loadModuleValue(map: MutableMap<Any, Any>) {}
+    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf() }
 }

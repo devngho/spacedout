@@ -3,6 +3,7 @@ package com.github.devngho.spacedout.planet
 import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
+import com.github.devngho.spacedout.equipment.OxyzenMask
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -26,6 +27,7 @@ class Mars : Planet{
         override fun getDefaultBiomeProvider(worldInfo: WorldInfo): BiomeProvider {
             return OneBiomeProvider(Biome.DESERT)
         }
+        @Suppress("DEPRECATION")
         override fun generateChunkData(world: World, random: Random, chunkX: Int, chunkZ: Int, biome: BiomeGrid): ChunkData {
             val generator = PerlinOctaveGenerator(Random(world.seed), 8)
             generator.setScale(0.01)
@@ -77,7 +79,7 @@ class Mars : Planet{
     override var pos: UInt = 20000u
     override var graphicMaterial: Material = Material.SAND
     override var worldBorderSize = 256.0
-    override val needEquipments: MutableList<Equipment> = mutableListOf()
+    override val needEquipments: MutableList<Equipment> = mutableListOf(OxyzenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
 }

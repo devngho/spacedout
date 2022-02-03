@@ -3,6 +3,7 @@ package com.github.devngho.spacedout
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.PlayerData
+import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.Jetpack
 import com.github.devngho.spacedout.equipment.toItemStack
@@ -30,13 +31,14 @@ class Plugin : JavaPlugin() {
         super.onEnable()
         server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
-        // PlanetManager.generateWorlds()
+        RocketData.loadAll()
+        PlanetManager.generateWorlds()
     }
 
     override fun onLoad() {
         super.onLoad()
-        com.github.devngho.spacedout.Instance.server = server
-        com.github.devngho.spacedout.Instance.plugin = this
+        Instance.server = server
+        Instance.plugin = this
         registerPlanets()
         registerModules()
         registerBuildable()
@@ -101,6 +103,7 @@ class Plugin : JavaPlugin() {
                             .rows(1)
                             .pageSize(9)
                             .create()
+                        addonGui.disableAllInteractions()
                         addonGui.setItem(
                             1,
                             1,
@@ -112,7 +115,8 @@ class Plugin : JavaPlugin() {
                             ItemBuilder.from(Material.PAPER).name(Component.text("다음").decoration(TextDecoration.ITALIC, false))
                                 .asGuiItem { addonGui.next() })
                         AddonManager.addons.forEach {
-                            addonGui.addItem(ItemBuilder.from(it.graphicMaterial).lore(it.description).asGuiItem())
+                            addonGui.addItem(ItemBuilder.from(it.graphicMaterial).name(Component.text(it.name).color(
+                                TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)).lore(it.description).asGuiItem())
                         }
                         addonGui.open(sender)
                     }))
@@ -123,6 +127,8 @@ class Plugin : JavaPlugin() {
     override fun onDisable() {
         super.onDisable()
         Config.saveConfigs()
+        PlayerData.savePlayerData()
+        RocketData.saveRocketData()
     }
     override fun getDefaultWorldGenerator(worldName: String, id: String?): ChunkGenerator {
         return PlanetManager.planets.find { it.first.codeName == worldName }?.second?.generator!!

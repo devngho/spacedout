@@ -1,7 +1,6 @@
 package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.spacedout.addon.Addon
-import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -66,6 +65,18 @@ interface Module {
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
      */
     fun loadModuleConfig(configurationSection: ConfigurationSection)
+
+    /**
+     * 모듈이 저장 후 로딩될 때 Map 를 읽어 로딩합니다.
+     * @param map 읽을 Map 입니다.
+     */
+    fun loadModuleValue(map: MutableMap<Any, Any>)
+
+    /**
+     * 모듈이 저장될 때 Map 로 저장합니다.
+     * @return 저장될 Map 입니다.
+     */
+    fun saveModuleValue(): MutableMap<Any, Any>
 
     /**
      * 모듈을 추가한 애드온입니다.

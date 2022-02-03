@@ -3,6 +3,7 @@ package com.github.devngho.spacedout.event
 import com.github.devngho.spacedout.buildable.BuildableManager
 import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.PlayerData
+import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.rocket.RocketManager
 import net.kyori.adventure.text.Component
@@ -37,6 +38,7 @@ class Event : Listener {
     fun onSave(event: WorldSaveEvent){
         Config.saveConfigs()
         PlayerData.savePlayerData()
+        RocketData.saveRocketData()
     }
     @EventHandler
     fun onJoin(event: PlayerJoinEvent){

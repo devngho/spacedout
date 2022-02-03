@@ -62,4 +62,7 @@ class LavaEngine : Engine {
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "LAVA_BUCKET")!!.uppercase(), false) ?: Material.LAVA_BUCKET
         fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 1000.0)
     }
+
+    override fun loadModuleValue(map: MutableMap<Any, Any>) {}
+    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf() }
 }

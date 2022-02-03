@@ -56,4 +56,7 @@ class CoalEngine() : Engine {
     override fun newInstance(): Module {
         return CoalEngine()
     }
+
+    override fun loadModuleValue(map: MutableMap<Any, Any>) {}
+    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf() }
 }
