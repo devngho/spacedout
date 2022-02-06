@@ -17,9 +17,9 @@ import org.bukkit.util.noise.PerlinOctaveGenerator
 import java.util.*
 
 
-//목성
-class Jupiter : Planet{
-    class JupiterGenerator : ChunkGenerator() {
+//해왕성
+class Neptune : Planet{
+    class NeptuneGenerator : ChunkGenerator() {
         // Remember this
         private var currentHeight = 60
 
@@ -29,7 +29,7 @@ class Jupiter : Planet{
         @Suppress("DEPRECATION")
         override fun generateChunkData(world: World, random: Random, chunkX: Int, chunkZ: Int, biome: BiomeGrid): ChunkData {
             val generator = PerlinOctaveGenerator(Random(world.seed), 8)
-            generator.setScale(0.05)
+            generator.setScale(0.025)
             val chunk = createChunkData(world)
             val rand = Random(world.seed)
             for (X in 0..15) for (Z in 0..15) {
@@ -54,28 +54,28 @@ class Jupiter : Planet{
     }
 
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
-        configurationSection.set("worldbordersize", 1024.0)
-        configurationSection.set("position", 5.2)
-        configurationSection.set("name", "목성")
-        configurationSection.set("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")
-        configurationSection.set("graphicmaterial", "ORANGE_CONCRETE_POWDER")
+        configurationSection.set("worldbordersize", 512.0)
+        configurationSection.set("position", 30.0)
+        configurationSection.set("name", "해왕성")
+        configurationSection.set("description", "가장 먼 행성.")
+        configurationSection.set("graphicmaterial", "BLUE_ICE")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "목성")!!
-        description = configurationSection.getString("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")!!
-        pos = configurationSection.getDouble("position", 5.2)
-        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ORANGE_CONCRETE_POWDER")!!.uppercase(), false) ?: Material.ORANGE_CONCRETE_POWDER
-        worldBorderSize = configurationSection.getDouble("worldbordersize", 1024.0)
+        name = configurationSection.getString("name", "해왕성")!!
+        description = configurationSection.getString("description", "가장 먼 행성.")!!
+        pos = configurationSection.getDouble("position", 30.0)
+        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "BLUE_ICE")!!.uppercase(), false) ?: Material.BLUE_ICE
+        worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "목성"
-    override val codeName: String = "jupiter"
-    override var description: String = "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다."
-    override val chunkGenerator: ChunkGenerator = JupiterGenerator()
-    override var pos: Double = 5.2
-    override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER
-    override var worldBorderSize = 1024.0
+    override var name: String = "토성"
+    override val codeName: String = "saturn"
+    override var description: String = "고리가 없어요"
+    override val chunkGenerator: ChunkGenerator = NeptuneGenerator()
+    override var pos: Double = 30.0
+    override var graphicMaterial: Material = Material.GRAY_CONCRETE_POWDER
+    override var worldBorderSize = 512.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon

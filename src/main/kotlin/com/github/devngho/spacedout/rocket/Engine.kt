@@ -19,11 +19,6 @@ interface Engine : Module, Cloneable{
     val supportFuel: Fuel
 
     /**
-     * 로켓이 도달 가능한 최대 거리입니다.
-     */
-    val maxReachableDistance: UInt
-
-    /**
      * 로켓의 연비입니다.
      */
     val fuelDistanceRatio: Double

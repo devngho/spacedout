@@ -17,19 +17,19 @@ import org.bukkit.util.noise.PerlinOctaveGenerator
 import java.util.*
 
 
-//목성
-class Jupiter : Planet{
-    class JupiterGenerator : ChunkGenerator() {
+//수성
+class Uranus : Planet{
+    class UranusGenerator : ChunkGenerator() {
         // Remember this
         private var currentHeight = 60
 
         override fun getDefaultBiomeProvider(worldInfo: WorldInfo): BiomeProvider {
-            return OneBiomeProvider(Biome.BASALT_DELTAS)
+            return OneBiomeProvider(Biome.ICE_SPIKES)
         }
         @Suppress("DEPRECATION")
         override fun generateChunkData(world: World, random: Random, chunkX: Int, chunkZ: Int, biome: BiomeGrid): ChunkData {
             val generator = PerlinOctaveGenerator(Random(world.seed), 8)
-            generator.setScale(0.05)
+            generator.setScale(0.025)
             val chunk = createChunkData(world)
             val rand = Random(world.seed)
             for (X in 0..15) for (Z in 0..15) {
@@ -39,9 +39,7 @@ class Jupiter : Planet{
                     0.5,
                     0.5
                 ) * 30.0 + 100.0).toInt()
-                for (i in currentHeight downTo currentHeight - 40) chunk.setBlock(X, i, Z, if (rand.nextBoolean()){Material.ICE} else {Material.STONE})
-                for (i in currentHeight downTo currentHeight - 6) chunk.setBlock(X, i, Z, Material.OBSIDIAN)
-                for (i in 100 downTo 0) if (chunk.getType(X, i, Z) == Material.AIR) chunk.setBlock(X, i, Z, Material.LAVA)
+                for (i in currentHeight downTo 1) chunk.setBlock(X, i, Z, if (rand.nextBoolean()){Material.ICE} else {Material.BLUE_ICE})
                 chunk.setBlock(X, 0, Z, Material.BEDROCK)
             }
             return chunk
@@ -54,28 +52,28 @@ class Jupiter : Planet{
     }
 
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
-        configurationSection.set("worldbordersize", 1024.0)
-        configurationSection.set("position", 5.2)
-        configurationSection.set("name", "목성")
-        configurationSection.set("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")
-        configurationSection.set("graphicmaterial", "ORANGE_CONCRETE_POWDER")
+        configurationSection.set("worldbordersize", 512.0)
+        configurationSection.set("position", 19.2)
+        configurationSection.set("name", "천왕성")
+        configurationSection.set("description", "춥고 춥고 얼어 있습니다.")
+        configurationSection.set("graphicmaterial", "ICE")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "목성")!!
-        description = configurationSection.getString("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")!!
-        pos = configurationSection.getDouble("position", 5.2)
-        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ORANGE_CONCRETE_POWDER")!!.uppercase(), false) ?: Material.ORANGE_CONCRETE_POWDER
-        worldBorderSize = configurationSection.getDouble("worldbordersize", 1024.0)
+        name = configurationSection.getString("name", "천왕성")!!
+        description = configurationSection.getString("description", "춥고 춥고 얼어 있습니다.")!!
+        pos = configurationSection.getDouble("position", 19.2)
+        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ICE")!!.uppercase(), false) ?: Material.ICE
+        worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "목성"
-    override val codeName: String = "jupiter"
-    override var description: String = "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다."
-    override val chunkGenerator: ChunkGenerator = JupiterGenerator()
-    override var pos: Double = 5.2
-    override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER
-    override var worldBorderSize = 1024.0
+    override var name: String = "천왕성"
+    override val codeName: String = "uranus"
+    override var description: String = "춥고 춥고 얼어 있습니다."
+    override val chunkGenerator: ChunkGenerator = UranusGenerator()
+    override var pos: Double = 19.2
+    override var graphicMaterial: Material = Material.ICE
+    override var worldBorderSize = 512.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon

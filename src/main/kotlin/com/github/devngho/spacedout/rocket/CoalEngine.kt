@@ -17,8 +17,7 @@ class CoalEngine() : Engine {
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10))
     override var graphicMaterial: Material = Material.COAL
     override val sizeY: Int = 2
-    override val maxReachableDistance: UInt = 20000u
-    override var fuelDistanceRatio: Double = 50.0
+    override var fuelDistanceRatio: Double = 0.01
     override val moduleType: ModuleType = ModuleType.ENGINE
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
@@ -28,7 +27,7 @@ class CoalEngine() : Engine {
         configurationSection.set("maxheight", 20)
         configurationSection.set("name", "석탄 엔진")
         configurationSection.set("graphicmaterial", "COAL")
-        configurationSection.set("fueldistanceratio", 50.0)
+        configurationSection.set("fueldistanceratio", 0.01)
     }
 
     override fun loadModuleConfig(configurationSection: ConfigurationSection) {
@@ -37,7 +36,7 @@ class CoalEngine() : Engine {
         maxHeight = configurationSection.getInt("maxheight", 20)
         name = configurationSection.getString("name", "석탄 엔진").toString()
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "COAL")!!.uppercase(), false) ?: Material.COAL
-        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 50.0)
+        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.01)
     }
 
     override fun render(rocket: RocketDevice, position: Location) {

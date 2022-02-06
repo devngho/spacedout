@@ -31,7 +31,7 @@ publishing {
         create <MavenPublication>("maven") {
             groupId = "com.github.devngho"
             artifactId = "spacedout"
-            version = "v0.1-alpha6"
+            version = "v0.1-alpha8"
 
             from(components["kotlin"])
         }

@@ -19,7 +19,7 @@ import java.util.*
 //수성
 class Venus : Planet{
     class VenusGenerator : ChunkGenerator() {
-        private val prePopulators: List<PregeneratedPopulator> = listOf(OrePopulator(10, 40, 30, Material.RAW_GOLD_BLOCK,
+        private val prePopulators: List<PregeneratedPopulator> = listOf(OrePopulator(10, 50, 50, Material.RAW_GOLD_BLOCK,
             listOf(Material.BASALT), 20, 40))
         override fun getDefaultBiomeProvider(worldInfo: WorldInfo): BiomeProvider {
             return OneBiomeProvider(Biome.CRIMSON_FOREST)
@@ -51,7 +51,7 @@ class Venus : Planet{
     }
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 384.0)
-        configurationSection.set("position", 10000)
+        configurationSection.set("position", 0.72)
         configurationSection.set("name", "금성")
         configurationSection.set("description", "이 행성은 금 원석 블럭이 많이 분포해 있습니다.")
         configurationSection.set("graphicmaterial", "BASALT")
@@ -60,7 +60,7 @@ class Venus : Planet{
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         name = configurationSection.getString("name", "금성")!!
         description = configurationSection.getString("description", "이 행성은 금 원석 블럭이 많이 분포해 있습니다.")!!
-        pos = configurationSection.getInt("position", 10000).toUInt()
+        pos = configurationSection.getDouble("position", 0.72)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "BASALT")!!.uppercase(), false) ?: Material.BASALT
         worldBorderSize = configurationSection.getDouble("worldbordersize", 384.0)
     }
@@ -68,7 +68,7 @@ class Venus : Planet{
     override val codeName: String = "venus"
     override var description: String = "이 행성은 금 원석 블럭이 많이 분포해 있습니다."
     override val chunkGenerator: ChunkGenerator = VenusGenerator()
-    override var pos: UInt = 10000u
+    override var pos: Double = 0.72
     override var graphicMaterial: Material = Material.BASALT
     override var worldBorderSize = 384.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(OxyzenMask())

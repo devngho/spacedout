@@ -32,6 +32,12 @@ class Plugin : JavaPlugin() {
         super.onEnable()
         server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
+        registerPlanets()
+        registerModules()
+        registerBuildable()
+        registerEquipments()
+        Config.loadConfigs()
+        PlayerData.loadAll()
         RocketData.loadAll()
         PlanetManager.generateWorlds()
     }
@@ -40,12 +46,6 @@ class Plugin : JavaPlugin() {
         super.onLoad()
         Instance.server = server
         Instance.plugin = this
-        registerPlanets()
-        registerModules()
-        registerBuildable()
-        registerEquipments()
-        Config.loadConfigs()
-        PlayerData.loadAll()
         // 커맨드 등록
         CommandAPICommand("spacedout")
             .withSubcommand(CommandAPICommand("rocket")
@@ -139,6 +139,9 @@ class Plugin : JavaPlugin() {
         PlanetManager.planets += Pair(Venus(), null)
         PlanetManager.planets += Pair(Mars(), null)
         PlanetManager.planets += Pair(Jupiter(), null)
+        PlanetManager.planets += Pair(Saturn(), null)
+        PlanetManager.planets += Pair(Uranus(), null)
+        PlanetManager.planets += Pair(Neptune(), null)
         PlanetManager.planets += Pair(Earth(), server.getWorld("world"))
     }
     private fun registerModules(){

@@ -156,7 +156,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         )
                         planetLore += Component.text(it.first.description).decoration(TextDecoration.ITALIC, false).color(
                             TextColor.color(255, 255, 255))
-                        planetLore += Component.text("거리 : ${distance}km").decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 255, 255))
+                        planetLore += Component.text("거리 : ${distance}AU").decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 255, 255))
                         planetLore += Component.text("필요 방호구 : ${it.first.needEquipments.joinToString(postfix = ", ") { j -> j.name }}").decoration(TextDecoration.ITALIC, false).color(
                             TextColor.color(255, 255, 255))
                         planetLore += if (distance <= fuelHeight * engine.fuelDistanceRatio){
@@ -195,7 +195,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 TextColor.color(255, 255, 255))).lore(listOf(Component.text("(${fuelHeight}${engine.supportFuel.getUnit()})").color(
                 TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false), Component.text("최대 중량 : ${engine.maxFuelHeight}${engine.supportFuel.getUnit()}").color(
                 TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false))).asGuiItem())
-            gui.setItem(3, 2, ItemBuilder.from(if (fuelHeight == 0) {Material.RED_STAINED_GLASS_PANE} else {Material.GREEN_STAINED_GLASS_PANE}).name(Component.text("도달 가능 거리 : ${fuelHeight * engine.fuelDistanceRatio}km").decoration(TextDecoration.ITALIC, false).color(
+            gui.setItem(3, 2, ItemBuilder.from(if (fuelHeight == 0) {Material.RED_STAINED_GLASS_PANE} else {Material.GREEN_STAINED_GLASS_PANE}).name(Component.text("도달 가능 거리 : ${fuelHeight * engine.fuelDistanceRatio}AU").decoration(TextDecoration.ITALIC, false).color(
                 TextColor.color(255, 255, 255))).asGuiItem())
             val fuelInputItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("연료 투입").decoration(TextDecoration.ITALIC, false))
             val fuelInputItemLore = mutableListOf<Component>()

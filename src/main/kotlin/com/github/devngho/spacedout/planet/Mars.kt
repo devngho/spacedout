@@ -16,7 +16,7 @@ import org.bukkit.util.noise.PerlinOctaveGenerator
 import java.util.*
 
 
-//수성
+//화성
 class Mars : Planet{
     class MarsGenerator : ChunkGenerator() {
         // Remember this
@@ -58,7 +58,7 @@ class Mars : Planet{
 
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 256.0)
-        configurationSection.set("position", 20000)
+        configurationSection.set("position", 1.5)
         configurationSection.set("name", "화성")
         configurationSection.set("description", "이 행성은 철이 분포해 있고 모래로 덮여 있습니다.")
         configurationSection.set("graphicmaterial", "SAND")
@@ -67,7 +67,7 @@ class Mars : Planet{
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         name = configurationSection.getString("name", "화성")!!
         description = configurationSection.getString("description", "이 행성은 철이 분포해 있고 모래로 덮여 있습니다.")!!
-        pos = configurationSection.getInt("position", 20000).toUInt()
+        pos = configurationSection.getDouble("position", 1.5)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "SAND")!!.uppercase(), false) ?: Material.SAND
         worldBorderSize = configurationSection.getDouble("worldbordersize", 256.0)
     }
@@ -76,7 +76,7 @@ class Mars : Planet{
     override val codeName: String = "mars"
     override var description: String = "이 행성은 철이 분포해 있고 모래로 덮여 있습니다."
     override val chunkGenerator: ChunkGenerator = MarsGenerator()
-    override var pos: UInt = 20000u
+    override var pos: Double = 1.5
     override var graphicMaterial: Material = Material.SAND
     override var worldBorderSize = 256.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(OxyzenMask())

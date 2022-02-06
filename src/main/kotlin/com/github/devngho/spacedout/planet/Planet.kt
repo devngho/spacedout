@@ -24,9 +24,9 @@ interface Planet {
     val chunkGenerator: ChunkGenerator
 
     /**
-     * 행성의 태양으로부터 거리입니다.
+     * 행성의 태양으로부터 거리입니다. 단위는 AU입니다.
      */
-    val pos: UInt
+    val pos: Double
 
     /**
      * 행성 선택 창에 렌더링될 아이템의 종류입니다.

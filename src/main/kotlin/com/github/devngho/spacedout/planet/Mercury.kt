@@ -47,7 +47,7 @@ class Mercury : Planet{
     }
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 256.0)
-        configurationSection.set("position", 5000)
+        configurationSection.set("position", 0.4)
         configurationSection.set("name", "수성")
         configurationSection.set("description", "이 행성은 상당히 척박하지만 용암이 많습니다.")
         configurationSection.set("graphicmaterial", "BLACKSTONE")
@@ -56,7 +56,7 @@ class Mercury : Planet{
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         name = configurationSection.getString("name", "수성")!!
         description = configurationSection.getString("description", "이 행성은 상당히 척박하지만 용암이 많습니다.")!!
-        pos = configurationSection.getInt("position", 5000).toUInt()
+        pos = configurationSection.getDouble("position", 0.4)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "BLACKSTONE")!!.uppercase(), false) ?: Material.BLACKSTONE
         worldBorderSize = configurationSection.getDouble("worldbordersize", 256.0)
     }
@@ -64,7 +64,7 @@ class Mercury : Planet{
     override val codeName: String = "mercury"
     override var description: String = "이 행성은 상당히 척박하지만 용암이 많습니다."
     override val chunkGenerator: ChunkGenerator = MercuryGenerator()
-    override var pos: UInt = 5000u
+    override var pos: Double = 0.4
     override var graphicMaterial: Material = Material.BLACKSTONE
     override var worldBorderSize = 256.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(OxyzenMask())

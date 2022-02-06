@@ -17,8 +17,7 @@ class LavaEngine : Engine {
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 50))
     override var graphicMaterial: Material = Material.LAVA_BUCKET
     override val sizeY: Int = 3
-    override val maxReachableDistance: UInt = 20000u
-    override var fuelDistanceRatio: Double = 1000.0
+    override var fuelDistanceRatio: Double = 0.3
     override val moduleType: ModuleType = ModuleType.ENGINE
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
@@ -51,7 +50,7 @@ class LavaEngine : Engine {
         configurationSection.set("maxheight", 40)
         configurationSection.set("name", "용암 엔진")
         configurationSection.set("graphicmaterial", "LAVA_BUCKET")
-        configurationSection.set("fueldistanceratio", 1000.0)
+        configurationSection.set("fueldistanceratio", 0.3)
     }
 
     override fun loadModuleConfig(configurationSection: ConfigurationSection) {
@@ -60,7 +59,7 @@ class LavaEngine : Engine {
         maxHeight = configurationSection.getInt("maxheight", 20)
         name = configurationSection.getString("name", "용암 엔진").toString()
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "LAVA_BUCKET")!!.uppercase(), false) ?: Material.LAVA_BUCKET
-        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 1000.0)
+        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.3)
     }
 
     override fun loadModuleValue(map: MutableMap<Any, Any>) {}

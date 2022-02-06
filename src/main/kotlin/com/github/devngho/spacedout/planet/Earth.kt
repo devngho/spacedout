@@ -13,7 +13,7 @@ class Earth : Planet {
     override val codeName: String = "earth"
     //사용하지 않음
     override val chunkGenerator: ChunkGenerator = Mercury.MercuryGenerator()
-    override var pos: UInt = 15000u
+    override var pos: Double = 1.0
     override var graphicMaterial: Material = Material.GRASS_BLOCK
     override var worldBorderSize: Double = 0.0
     override var description: String = "우리의 고향."
@@ -33,7 +33,7 @@ class Earth : Planet {
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         name = configurationSection.getString("name", "지구")!!
         description = configurationSection.getString("description", "우리의 고향.")!!
-        pos = configurationSection.getInt("position", 15000).toUInt()
+        pos = configurationSection.getDouble("position", 1.0)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "GRASS_BLOCK")!!.uppercase(), false) ?: Material.GRASS_BLOCK
     }
 }
