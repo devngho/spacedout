@@ -24,7 +24,7 @@ class Earth : Planet {
 
     }
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
-        configurationSection.set("position", 15000)
+        configurationSection.set("position", 1.0)
         configurationSection.set("name", "지구")
         configurationSection.set("description", "우리의 고향.")
         configurationSection.set("graphicmaterial", "GRASS_BLOCK")
