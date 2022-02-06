@@ -39,9 +39,7 @@ class Neptune : Planet{
                     0.5,
                     0.5
                 ) * 30.0 + 100.0).toInt()
-                for (i in currentHeight downTo currentHeight - 40) chunk.setBlock(X, i, Z, if (rand.nextBoolean()){Material.ICE} else {Material.STONE})
-                for (i in currentHeight downTo currentHeight - 6) chunk.setBlock(X, i, Z, Material.OBSIDIAN)
-                for (i in 100 downTo 0) if (chunk.getType(X, i, Z) == Material.AIR) chunk.setBlock(X, i, Z, Material.LAVA)
+                for (i in currentHeight downTo 1) chunk.setBlock(X, i, Z, if (rand.nextBoolean()){Material.PACKED_ICE} else {Material.BLUE_ICE})
                 chunk.setBlock(X, 0, Z, Material.BEDROCK)
             }
             return chunk
@@ -69,12 +67,12 @@ class Neptune : Planet{
         worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "토성"
-    override val codeName: String = "saturn"
-    override var description: String = "고리가 없어요"
+    override var name: String = "해왕성"
+    override val codeName: String = "neptune"
+    override var description: String = "가장 먼 행성."
     override val chunkGenerator: ChunkGenerator = NeptuneGenerator()
     override var pos: Double = 30.0
-    override var graphicMaterial: Material = Material.GRAY_CONCRETE_POWDER
+    override var graphicMaterial: Material = Material.BLUE_ICE
     override var worldBorderSize = 512.0
     override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
     override val addedAddon: Addon
