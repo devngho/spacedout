@@ -4,7 +4,7 @@ import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.Jetpack
-import com.github.devngho.spacedout.equipment.OxyzenMask
+import com.github.devngho.spacedout.equipment.OxygenMask
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -74,7 +74,7 @@ class Neptune : Planet{
     override var pos: Double = 30.0
     override var graphicMaterial: Material = Material.BLUE_ICE
     override var worldBorderSize = 512.0
-    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
+    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxygenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
 }

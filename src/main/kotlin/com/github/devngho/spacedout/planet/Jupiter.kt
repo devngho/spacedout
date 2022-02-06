@@ -4,7 +4,7 @@ import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.Jetpack
-import com.github.devngho.spacedout.equipment.OxyzenMask
+import com.github.devngho.spacedout.equipment.OxygenMask
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -76,7 +76,7 @@ class Jupiter : Planet{
     override var pos: Double = 5.2
     override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER
     override var worldBorderSize = 1024.0
-    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxyzenMask())
+    override val needEquipments: MutableList<Equipment> = mutableListOf(Jetpack(), OxygenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
 }

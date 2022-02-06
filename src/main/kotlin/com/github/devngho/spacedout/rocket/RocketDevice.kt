@@ -88,7 +88,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 val moduleAdderGui = Gui.scrolling(ScrollType.HORIZONTAL)
                     .title(Component.text("추가할 모듈").decoration(TextDecoration.ITALIC, false))
                     .rows(1)
-                    .pageSize(9)
+                    .pageSize(7)
                     .create()
                 moduleAdderGui.setItem(
                     1,
@@ -132,7 +132,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     val planetGui = Gui.scrolling(ScrollType.HORIZONTAL)
                         .title(Component.text("로켓 목적지").decoration(TextDecoration.ITALIC, false))
                         .rows(1)
-                        .pageSize(9)
+                        .pageSize(7)
                         .create()
                     planetGui.setItem(
                         1,
@@ -152,7 +152,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             planetLore += Component.text("현재 행성").decoration(TextDecoration.ITALIC, false)
                         }
                         val distance = abs(
-                            (PlanetManager.planets.find { p -> p.second?.name == installedLocation.world.name }?.first?.pos?.toInt() ?: 0) - (it.first.pos.toInt())
+                            (PlanetManager.planets.find { p -> p.second?.name == installedLocation.world.name }?.first?.pos?: 0.0) - (it.first.pos)
                         )
                         planetLore += Component.text(it.first.description).decoration(TextDecoration.ITALIC, false).color(
                             TextColor.color(255, 255, 255))
@@ -170,7 +170,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             Component.text("왕복 불가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
                         }
                         val equips = EquipmentManager.getPlayerEquipments(p)
-                        planetLore += if (it.first.needEquipments.count { c -> !equips.containsValue(c) } == 0){
+                        planetLore += if (it.first.needEquipments.all { c -> equips.containsValue(c) }){
                             Component.text("방호복 충분함").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
                         }else{
                             Component.text("방호복 불충분").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
@@ -178,6 +178,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         planetLore += Component.text("from. ${it.first.addedAddon.name}").color(TextColor.color(127, 127, 127))
                         planetItem.lore(planetLore.toList())
                         val planetGuiItem = planetItem.asGuiItem()
+
                         planetGuiItem.setAction { _ ->
                             this.reachPlanet = it.first
                             planetGui.close(e.whoClicked)

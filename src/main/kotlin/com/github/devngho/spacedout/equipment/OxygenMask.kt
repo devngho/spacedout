@@ -4,9 +4,9 @@ import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Material
 
-class OxyzenMask : Equipment {
+class OxygenMask : Equipment {
     override val type: EquipmentType = EquipmentType.HELMET
-    override val id: String = "oxyzenmask"
+    override val id: String = "oxygenmask"
     override val name: String = "산소 마스크"
     override val graphicMaterial: Material = Material.IRON_INGOT
     override val customModelData: Int = 2

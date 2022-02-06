@@ -3,7 +3,7 @@ package com.github.devngho.spacedout.planet
 import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
-import com.github.devngho.spacedout.equipment.OxyzenMask
+import com.github.devngho.spacedout.equipment.OxygenMask
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -79,7 +79,7 @@ class Mars : Planet{
     override var pos: Double = 1.5
     override var graphicMaterial: Material = Material.SAND
     override var worldBorderSize = 256.0
-    override val needEquipments: MutableList<Equipment> = mutableListOf(OxyzenMask())
+    override val needEquipments: MutableList<Equipment> = mutableListOf(OxygenMask())
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
 }

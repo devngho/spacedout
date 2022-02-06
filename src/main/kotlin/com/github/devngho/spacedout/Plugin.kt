@@ -6,7 +6,7 @@ import com.github.devngho.spacedout.config.PlayerData
 import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.Jetpack
-import com.github.devngho.spacedout.equipment.OxyzenMask
+import com.github.devngho.spacedout.equipment.OxygenMask
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.*
@@ -102,7 +102,7 @@ class Plugin : JavaPlugin() {
                         val addonGui = Gui.scrolling(ScrollType.HORIZONTAL)
                             .title(Component.text("애드온 목록").decoration(TextDecoration.ITALIC, false))
                             .rows(1)
-                            .pageSize(9)
+                            .pageSize(7)
                             .create()
                         addonGui.disableAllInteractions()
                         addonGui.setItem(
@@ -154,6 +154,6 @@ class Plugin : JavaPlugin() {
     }
     private fun registerEquipments(){
         EquipmentManager.equipments += Jetpack()
-        EquipmentManager.equipments += OxyzenMask()
+        EquipmentManager.equipments += OxygenMask()
     }
 }
