@@ -22,14 +22,14 @@ object AddonManager {
         )
         override val graphicMaterial: Material = Material.END_STONE
         override fun register() {
-            PlanetManager.planets += Pair(Mercury(), null)
-            PlanetManager.planets += Pair(Venus(), null)
-            PlanetManager.planets += Pair(Mars(), null)
-            PlanetManager.planets += Pair(Jupiter(), null)
-            PlanetManager.planets += Pair(Saturn(), null)
-            PlanetManager.planets += Pair(Uranus(), null)
-            PlanetManager.planets += Pair(Neptune(), null)
-            PlanetManager.planets += Pair(Earth(), Instance.server.getWorld("world"))
+            PlanetManager.registerPlanet(Mercury())
+            PlanetManager.registerPlanet(Venus())
+            PlanetManager.registerPlanet(Mars())
+            PlanetManager.registerPlanet(Jupiter())
+            PlanetManager.registerPlanet(Saturn())
+            PlanetManager.registerPlanet(Uranus())
+            PlanetManager.registerPlanet(Neptune())
+            PlanetManager.registerPlanet(Earth(), Instance.server.worlds[0])
 
             ModuleManager.modules += CoalEngine()
             ModuleManager.modules += LavaEngine()

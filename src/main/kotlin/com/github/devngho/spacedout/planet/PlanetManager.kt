@@ -9,7 +9,7 @@ object PlanetManager {
     /**
      * 등록된 행성 목록입니다.
      */
-    var planets: MutableList<Pair<Planet, World?>> = mutableListOf()
+    internal var planets: MutableList<Pair<Planet, World?>> = mutableListOf()
 
     internal fun generateWorlds(){
         val newPlanets = planets.map {
@@ -28,5 +28,13 @@ object PlanetManager {
             }
         }
         planets = newPlanets.toMutableList()
+    }
+
+    fun registerPlanet(planet: Planet){
+        planets += Pair(planet, null)
+    }
+
+    fun registerPlanet(planet: Planet, world: World){
+        planets += Pair(planet, world)
     }
 }
