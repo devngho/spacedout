@@ -32,10 +32,20 @@ object Config {
             }
         }
         PlanetManager.planets.forEach {
-            it.first.loadPlanetConfig(configConfiguration.getConfigurationSection("planet.${it.first.codeName}")!!)
+            val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")
+            try {
+                it.first.loadPlanetConfig(planetConfig!!)
+            }catch (e: Exception){
+                it.first.initPlanetConfig(planetConfig!!)
+            }
         }
         ModuleManager.modules.forEach {
-            it.loadModuleConfig(configConfiguration.getConfigurationSection("module.${it.id}")!!)
+            val moduleConfig = configConfiguration.getConfigurationSection("module.${it.id}")
+            try {
+                it.loadModuleConfig(moduleConfig!!)
+            }catch (e: Exception){
+                it.initModuleConfig(moduleConfig!!)
+            }
         }
         configConfiguration.save(configData)
     }
