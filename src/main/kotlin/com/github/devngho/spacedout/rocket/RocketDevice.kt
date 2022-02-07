@@ -170,7 +170,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             Component.text("왕복 불가능").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))
                         }
                         val equips = EquipmentManager.getPlayerEquipments(p)
-                        planetLore += if (it.first.needEquipments.all { c -> equips.containsValue(c) }){
+                        planetLore += if (it.first.needEquipments.all { c -> equips.map { m -> m.value.id }.contains(c.id) }){
                             Component.text("방호복 충분함").decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
                         }else{
                             Component.text("방호복 불충분").decoration(TextDecoration.ITALIC, false).color(TextColor.color(201, 0, 0))

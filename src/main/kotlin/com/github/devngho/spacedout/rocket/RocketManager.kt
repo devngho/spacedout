@@ -20,7 +20,7 @@ object RocketManager {
         rockets.add(device)
         return device
     }*/
-    fun tick(){
+    internal fun tick(){
         rockets.forEach {
             it.tick()
         }

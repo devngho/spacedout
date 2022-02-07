@@ -21,7 +21,7 @@ object PlayerData {
         playerCache[uuid]!!.createSection("player.equip")
         playerCache[uuid]!!.set("player.equip", default?.get("equip"))
     }
-    fun loadPlayerData(uuid: UUID){
+    private fun loadPlayerData(uuid: UUID){
         if (!playerCache.containsKey(uuid)){
             val userdata =
                 File(com.github.devngho.spacedout.Instance.plugin.dataFolder, File.separator + "players")

@@ -5,12 +5,13 @@ import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.PlayerData
 import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
-import com.github.devngho.spacedout.equipment.Jetpack
-import com.github.devngho.spacedout.equipment.OxygenMask
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
-import com.github.devngho.spacedout.planet.*
-import com.github.devngho.spacedout.rocket.*
+import com.github.devngho.spacedout.planet.PlanetManager
+import com.github.devngho.spacedout.rocket.Engine
+import com.github.devngho.spacedout.rocket.ModuleManager
+import com.github.devngho.spacedout.rocket.ModuleType
+import com.github.devngho.spacedout.rocket.RocketManager
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
@@ -32,10 +33,7 @@ class Plugin : JavaPlugin() {
         super.onEnable()
         server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
-        registerPlanets()
-        registerModules()
-        registerBuildable()
-        registerEquipments()
+        AddonManager.registerAddon()
         Config.loadConfigs()
         PlayerData.loadAll()
         RocketData.loadAll()
@@ -133,27 +131,5 @@ class Plugin : JavaPlugin() {
     }
     override fun getDefaultWorldGenerator(worldName: String, id: String?): ChunkGenerator {
         return PlanetManager.planets.find { it.first.codeName == worldName }?.second?.generator!!
-    }
-    private fun registerPlanets(){
-        PlanetManager.planets += Pair(Mercury(), null)
-        PlanetManager.planets += Pair(Venus(), null)
-        PlanetManager.planets += Pair(Mars(), null)
-        PlanetManager.planets += Pair(Jupiter(), null)
-        PlanetManager.planets += Pair(Saturn(), null)
-        PlanetManager.planets += Pair(Uranus(), null)
-        PlanetManager.planets += Pair(Neptune(), null)
-        PlanetManager.planets += Pair(Earth(), server.getWorld("world"))
-    }
-    private fun registerModules(){
-        ModuleManager.modules += CoalEngine()
-        ModuleManager.modules += LavaEngine()
-        ModuleManager.modules += ControlModule()
-        ModuleManager.modules += StandardNosecone()
-    }
-    private fun registerBuildable(){
-    }
-    private fun registerEquipments(){
-        EquipmentManager.equipments += Jetpack()
-        EquipmentManager.equipments += OxygenMask()
     }
 }

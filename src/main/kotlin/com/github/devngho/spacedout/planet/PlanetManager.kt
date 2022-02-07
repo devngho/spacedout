@@ -11,7 +11,7 @@ object PlanetManager {
      */
     var planets: MutableList<Pair<Planet, World?>> = mutableListOf()
 
-    fun generateWorlds(){
+    internal fun generateWorlds(){
         val newPlanets = planets.map {
             if (it.second == null){
                 val planet = it.first
