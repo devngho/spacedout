@@ -14,7 +14,7 @@ class LavaEngine : Engine {
     override val supportFuel: Fuel = Fuel.LAVA
     override var name: String = "용암 엔진"
     override val id: String = "lavaengine"
-    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 50))
+    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 10))
     override var graphicMaterial: Material = Material.LAVA_BUCKET
     override val sizeY: Int = 3
     override var fuelDistanceRatio: Double = 0.3

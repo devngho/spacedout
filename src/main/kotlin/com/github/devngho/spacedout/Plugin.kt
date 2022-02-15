@@ -8,10 +8,7 @@ import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.PlanetManager
-import com.github.devngho.spacedout.rocket.Engine
-import com.github.devngho.spacedout.rocket.ModuleManager
-import com.github.devngho.spacedout.rocket.ModuleType
-import com.github.devngho.spacedout.rocket.RocketManager
+import com.github.devngho.spacedout.rocket.*
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
@@ -24,20 +21,28 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.generator.ChunkGenerator
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
 
 
 class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
-        server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
-        server.pluginManager.registerEvents(Event(), this)
         AddonManager.registerAddon()
         Config.loadConfigs()
         PlayerData.loadAll()
         RocketData.loadAll()
         PlanetManager.generateWorlds()
+        server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
+        server.pluginManager.registerEvents(Event(), this)
+        val rocketInstallerRecipe = ShapedRecipe(NamespacedKey(this, "rocketinstaller"), rocketInstaller)
+        rocketInstallerRecipe.shape("sis")
+        rocketInstallerRecipe.setIngredient('s', Material.STONE)
+        rocketInstallerRecipe.setIngredient('i', Material.IRON_BLOCK)
+        server.addRecipe(rocketInstallerRecipe)
     }
 
     override fun onLoad() {

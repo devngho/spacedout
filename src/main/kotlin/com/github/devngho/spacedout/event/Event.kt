@@ -6,8 +6,11 @@ import com.github.devngho.spacedout.config.PlayerData
 import com.github.devngho.spacedout.config.RocketData
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.rocket.RocketManager
+import com.github.devngho.spacedout.rocket.onUseRocketInstaller
+import com.github.devngho.spacedout.rocket.rocketInstaller
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
@@ -31,6 +34,9 @@ class Event : Listener {
                     BuildableManager.builded.add(buildable.clone(loc))
                     event.player.inventory.setItemInMainHand(event.item?.subtract())
                 }
+                if (event.item?.asOne() == rocketInstaller){
+                    onUseRocketInstaller(event)
+                }
             }
         }
     }
@@ -42,7 +48,7 @@ class Event : Listener {
     }
     @EventHandler
     fun onJoin(event: PlayerJoinEvent){
-        event.player.setResourcePack("https://github.com/devngho/spacedout/releases/latest/download/resourcepack.zip", "", true, Component.text("Spacedout 플러그인 아이템의 렌더링을 위해 리소스팩을 적용해야 합니다."))
+        event.player.setResourcePack("https://github.com/devngho/spacedout/releases/latest/download/resourcepack.zip", "", Config.configConfiguration.getBoolean("server.requireresourcepack", true), Component.text("Spacedout 플러그인 아이템의 렌더링을 위해 리소스팩을 적용해야 합니다."))
         EquipmentManager.generatePlayerGui(event.player)
         if(!event.player.hasPlayedBefore()){
             PlayerData.initPlayerData(event.player.uniqueId)

@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.planet.Planet
 import com.github.devngho.spacedout.planet.PlanetManager
@@ -8,14 +9,17 @@ import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.title.Title
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.round
 
 
@@ -84,7 +88,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 })
             }
             val moduleAdder = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("모듈 추가").decoration(TextDecoration.ITALIC, false)).asGuiItem()
-            moduleAdder.setAction {
+            moduleAdder.setAction { ev ->
                 val moduleAdderGui = Gui.scrolling(ScrollType.HORIZONTAL)
                     .title(Component.text("추가할 모듈").decoration(TextDecoration.ITALIC, false))
                     .rows(1)
@@ -109,13 +113,29 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     }else{
                         Component.text("설치 불가능").color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
                     }
+                    moduleLore += if (it.buildRequires.all { a -> ev.whoClicked.inventory.contains(ItemStack(a.first, a.second)) }){
+                        Component.text("자원 충분").color(TextColor.color(29, 219, 22)).decoration(TextDecoration.ITALIC, false)
+                    }else{
+                        Component.text("자원 부족").color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
+                    }
+                    var requireComp = Component.text("필요 자원 : ")
+                    it.buildRequires.forEachIndexed { i, item ->
+                        requireComp = requireComp.append(Component.translatable(item.first.translationKey())).append(Component.text("x${item.second}${if(it.buildRequires.count() - 1 != i){","}else{""}}"))
+                    }
+                    moduleLore += requireComp.color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
                     moduleLore += Component.text("모듈 중량 : ${it.height}").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
                     moduleLore += Component.text("from. ${it.addedAddon.name}").color(TextColor.color(127, 127, 127))
                     moduleItem.lore(moduleLore.toList())
                     moduleAdderGui.addItem(moduleItem.asGuiItem { e ->
-                        if (ModuleManager.isPlaceable(engine, modules, it)) {
+                        if (ModuleManager.isPlaceable(engine, modules, it) && it.buildRequires.all { ev.whoClicked.inventory.contains(ItemStack(it.first, it.second)) }) {
                             this.modules.add(it.newInstance())
                             this.render()
+                            it.buildRequires.forEach { i ->
+                                ev.whoClicked.inventory.remove(ItemStack(i.first, i.second))
+                            }
+                            moduleAdderGui.close(e.whoClicked)
+                        }else {
+                            e.whoClicked.sendMessage(Component.text("설치할 자원이 부족하거나 설치할 수 없습니다.").color(TextColor.color(255, 0, 0)))
                             moduleAdderGui.close(e.whoClicked)
                         }
                     })
@@ -217,14 +237,6 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                 fuelHeight += 1
                             } else {
                                 it.whoClicked.sendMessage(Component.text("아이템 부족!").color(TextColor.color(201, 0, 0)))
-                                it.whoClicked.playSound(
-                                    Sound.sound(
-                                        org.bukkit.Sound.BLOCK_ANVIL_PLACE,
-                                        Sound.Source.MASTER,
-                                        1f,
-                                        1f
-                                    )
-                                )
                             }
                         }
                     }
@@ -269,6 +281,83 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     else -> {}
                 }
                 it.isCancelled = true
+            })
+            val rocketLaunchItem = ItemBuilder.from(Material.FIREWORK_ROCKET).name(Component.text("로켓 발사!").decoration(TextDecoration.ITALIC, false))
+            val rocketLaunchItemLore = mutableListOf<Component>()
+            rocketLaunchItemLore += if (modules.find { f -> f.moduleType == ModuleType.ENGINE } != null) {
+                Component.text("엔진").color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
+            }else{
+                Component.text("엔진").color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+            }
+            rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null) {
+                Component.text("탑승 모듈").color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
+            }else{
+                Component.text("탑승 모듈").color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+            }
+            rocketLaunchItemLore += if (modules.find { f -> f.moduleType == ModuleType.NOSECONE } != null) {
+                Component.text("노즈콘").color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
+            }else{
+                Component.text("노즈콘").color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+            }
+            rocketLaunchItemLore += if (abs(
+                    ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
+                        ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
+                ) <= (fuelHeight * engine.fuelDistanceRatio)
+            ) {
+                Component.text("연료").color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
+            }else{
+                Component.text("연료").color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+            }
+            rocketLaunchItemLore += if (this.reachPlanet != null) {
+                Component.text("목적지 설정").color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
+            }else{
+                Component.text("목적지 설정").color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+            }
+            rocketLaunchItem.lore(rocketLaunchItemLore.toList())
+            gui.setItem(2, 9, rocketLaunchItem.asGuiItem {
+                gui.close(it.whoClicked)
+                if (modules.find { f -> f.moduleType == ModuleType.ENGINE } != null && modules.find { f -> f.id == "controlmodule" } != null && modules.find { f -> f.moduleType == ModuleType.NOSECONE } != null && (abs(
+                        ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
+                            ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
+                    ) <= (fuelHeight * engine.fuelDistanceRatio)) && this.reachPlanet != null){
+                        it.whoClicked.showTitle(
+                            Title.title(
+                                Component.text("로켓 발사"),
+                                Component.text("5초 후 ${reachPlanet?.name}으로!")
+                            )
+                        )
+                    Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                        for (x in -3..3){
+                            for (y in -3..3){
+                                for (z in 0..modules.sumOf { s -> s.sizeY }){
+                                    val resetLocation = installedLocation.clone()
+                                    resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
+                                    val checkLocation = installedLocation.clone()
+                                    checkLocation.add(x.toDouble(), 0.0, y.toDouble())
+                                    if (installedLocation.distance(checkLocation) <= 3){
+                                        resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
+                                    }
+                                }
+                            }
+                        }
+                        val world = PlanetManager.planets.find { f -> f.first.codeName == this.reachPlanet?.codeName }?.second!!
+                        this.fuelHeight -= ceil(abs(
+                            ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
+                                ?: 0.0) - (this.reachPlanet?.pos ?: 0.0)) / engine.fuelDistanceRatio)).toInt()
+                        this.installedLocation.world = world
+                        this.installedLocation.y = world.getHighestBlockYAt(
+                            it.whoClicked.location.x.toInt(),
+                            it.whoClicked.location.z.toInt()
+                        ).toDouble()
+                        render()
+                        it.whoClicked.teleport(Location(world, it.whoClicked.location.x, world.getHighestBlockYAt(
+                            it.whoClicked.location.x.toInt(),
+                            it.whoClicked.location.z.toInt()
+                        ).toDouble(), it.whoClicked.location.z))
+                    }, 20*5)
+                }else{
+                    it.whoClicked.sendMessage(Component.text("조건이 모두 충족되지 않았습니다!").color(TextColor.color(255, 0, 0)))
+                }
             })
             gui.open(p)
         }

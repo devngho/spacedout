@@ -1,5 +1,6 @@
 package com.github.devngho.spacedout.planet
 
+import com.github.devngho.spacedout.config.Config
 import org.bukkit.World
 import org.bukkit.WorldCreator
 import org.bukkit.WorldType
@@ -20,7 +21,9 @@ object PlanetManager {
                 wc.environment(World.Environment.NETHER)
                 wc.type(WorldType.NORMAL)
                 val newWorld = wc.createWorld()
-                newWorld?.worldBorder?.size = planet.worldBorderSize
+                if (Config.configConfiguration.getBoolean("planets.useworldborder", false)) {
+                    newWorld?.worldBorder?.size = planet.worldBorderSize
+                }
                 planet.configWorld(newWorld!!)
                 Pair(it.first, newWorld)
             }else{

@@ -30,6 +30,10 @@ object Config {
             EquipmentType.values().forEach {
                 configConfiguration.set("playerdefault.equip.${it.name}", null)
             }
+            configConfiguration.createSection("planets")
+            configConfiguration.set("planets.useworldborder", false)
+            configConfiguration.createSection("server")
+            configConfiguration.set("server.requireresourcepack", true)
         }
         PlanetManager.planets.forEach {
             val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")

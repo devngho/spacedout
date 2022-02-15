@@ -14,12 +14,11 @@ object RocketManager {
         rockets.add(device)
         return device
     }
-    /*
-    fun createRocketWithInstaller(rocketName: String, location: Location): RocketDevice {
-        val device = RocketDevice(ModuleManager.modules.find { it.id == rocketName && it.moduleType == ModuleType.ENGINE && it is Engine }?.newInstance() as Engine, location, UUID.randomUUID())
+    fun createRocketWithInstaller(rocketEngine: Engine, location: Location): RocketDevice {
+        val device = RocketDevice(rocketEngine.newInstance() as Engine, location, UUID.randomUUID())
         rockets.add(device)
         return device
-    }*/
+    }
     internal fun tick(){
         rockets.forEach {
             it.tick()
