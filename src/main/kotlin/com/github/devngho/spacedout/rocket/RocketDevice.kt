@@ -13,7 +13,6 @@ import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.devngho"
-version = "1.0-SNAPSHOT"
+version = "v0.2-alpha6"
 
 repositories {
     mavenCentral()
@@ -29,9 +29,9 @@ java {
 publishing {
     publications {
         create <MavenPublication>("maven") {
-            groupId = "com.github.devngho"
+            groupId = project.group as String
             artifactId = "spacedout"
-            version = "v0.2-alpha4"
+            version = project.version as String
 
             from(components["kotlin"])
         }
