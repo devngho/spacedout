@@ -5,6 +5,7 @@ import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import com.github.devngho.spacedout.util.Pair
 
 class StandardNosecone : Module {
     override val id: String = "standardnosecone"

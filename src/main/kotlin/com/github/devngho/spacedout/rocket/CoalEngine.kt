@@ -6,6 +6,7 @@ import com.github.devngho.spacedout.fuel.Fuel
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import com.github.devngho.spacedout.util.Pair
 
 class CoalEngine() : Engine {
     override val id: String = "coalengine"
@@ -40,7 +41,7 @@ class CoalEngine() : Engine {
     }
 
     override fun render(rocket: RocketDevice, position: Location) {
-        for (x in -2..2) {
+        /*for (x in -2..2) {
             for (z in -2..2) {
                 position.clone().add(x.toDouble(), 0.0, z.toDouble()).block.type = Material.STONE
             }
@@ -49,7 +50,7 @@ class CoalEngine() : Engine {
             for (z in -1..1) {
                 position.clone().add(x.toDouble(), 1.0, z.toDouble()).block.type = Material.STONE
             }
-        }
+        }*/
     }
 
     override fun newInstance(): Module {

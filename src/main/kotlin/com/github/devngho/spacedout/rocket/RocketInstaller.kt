@@ -1,12 +1,16 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.spacedout.Instance
+import com.github.devngho.spacedout.event.RocketCreateEvent
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
@@ -68,7 +72,9 @@ internal fun onUseRocketInstaller(event: PlayerInteractEvent){
                     }
                     val loc = event.clickedBlock!!.location.clone()
                     loc.y += 1
-                    RocketManager.createRocketWithInstaller(it as Engine, loc).render()
+                    val rocket = RocketManager.createRocketWithInstaller(it as Engine, loc)
+                    rocket.render()
+                    Instance.server.pluginManager.callEvent(RocketCreateEvent(e.whoClicked as Player, rocket))
                     engineSelectorGui.close(e.whoClicked)
                     event.item!!.amount -= 1
                 } else {

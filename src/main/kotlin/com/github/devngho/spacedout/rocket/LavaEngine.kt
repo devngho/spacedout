@@ -6,6 +6,7 @@ import com.github.devngho.spacedout.fuel.Fuel
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import com.github.devngho.spacedout.util.Pair
 
 class LavaEngine : Engine {
     override var height: Int = 8

@@ -36,6 +36,7 @@ object Config {
             configConfiguration.set("server.requireresourcepack", true)
         }
         PlanetManager.planets.forEach {
+            configConfiguration.createSection("planet.${it.first.codeName}")
             val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")
             try {
                 it.first.loadPlanetConfig(planetConfig!!)
@@ -44,6 +45,7 @@ object Config {
             }
         }
         ModuleManager.modules.forEach {
+            configConfiguration.createSection("module.${it.id}")
             val moduleConfig = configConfiguration.getConfigurationSection("module.${it.id}")
             try {
                 it.loadModuleConfig(moduleConfig!!)

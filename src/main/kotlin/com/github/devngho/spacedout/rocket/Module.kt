@@ -18,7 +18,7 @@ interface Module {
     /**
      * 모듈 건설에 필요한 재료입니다.
      */
-    val buildRequires: List<Pair<Material, Int>>
+    val buildRequires: List<com.github.devngho.spacedout.util.Pair<Material, Int>>
 
     /**
      * 모듈의 렌더링 높이입니다.

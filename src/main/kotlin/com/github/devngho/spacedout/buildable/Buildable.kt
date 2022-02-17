@@ -4,6 +4,7 @@ import com.github.devngho.spacedout.addon.Addon
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.player.PlayerInteractEvent
+import com.github.devngho.spacedout.util.Pair
 
 interface Buildable {
     val codeName: String

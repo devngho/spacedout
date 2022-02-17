@@ -2,6 +2,10 @@ package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.equipment.EquipmentManager
+import com.github.devngho.spacedout.event.RocketFuelChargeEvent
+import com.github.devngho.spacedout.event.RocketLaunchEvent
+import com.github.devngho.spacedout.event.RocketModuleAddEvent
+import com.github.devngho.spacedout.event.RocketModuleRemoveEvent
 import com.github.devngho.spacedout.planet.Planet
 import com.github.devngho.spacedout.planet.PlanetManager
 import dev.triumphteam.gui.builder.item.ItemBuilder
@@ -15,6 +19,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.*
@@ -68,6 +73,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         item.buildRequires.forEach { b ->
                             it.whoClicked.world.dropItem(it.whoClicked.location, ItemStack(b.first, b.second))
                         }
+                        Instance.server.pluginManager.callEvent(RocketModuleRemoveEvent(it.whoClicked as Player, this, item))
                         modules.removeAt(idx)
                         for (x in -3..3){
                             for (y in -3..3){
@@ -133,6 +139,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             it.buildRequires.forEach { i ->
                                 ev.whoClicked.inventory.remove(ItemStack(i.first, i.second))
                             }
+                            Instance.server.pluginManager.callEvent(RocketModuleAddEvent(e.whoClicked as Player, this, it.newInstance()))
                             moduleAdderGui.close(e.whoClicked)
                         }else {
                             e.whoClicked.sendMessage(Component.text("설치할 자원이 부족하거나 설치할 수 없습니다.").color(TextColor.color(255, 0, 0)))
@@ -235,6 +242,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             if (inv.contains(ItemStack(engine.supportFuel.toMaterial()), 1)) {
                                 inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 1))
                                 fuelHeight += 1
+                                Instance.server.pluginManager.callEvent(RocketFuelChargeEvent(it.whoClicked as Player, this, 1))
                             } else {
                                 it.whoClicked.sendMessage(Component.text("아이템 부족!").color(TextColor.color(201, 0, 0)))
                             }
@@ -246,6 +254,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             if (inv.contains(ItemStack(engine.supportFuel.toMaterial(), 10))) {
                                 inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 10))
                                 fuelHeight += 10
+                                Instance.server.pluginManager.callEvent(RocketFuelChargeEvent(it.whoClicked as Player, this, 10))
                             } else {
                                 it.whoClicked.sendMessage(Component.text("아이템 부족!").color(TextColor.color(201, 0, 0)))
                                 it.whoClicked.playSound(
@@ -265,6 +274,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             if (inv.contains(ItemStack(engine.supportFuel.toMaterial(), 64))) {
                                 inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 64))
                                 fuelHeight += 64
+                                Instance.server.pluginManager.callEvent(RocketFuelChargeEvent(it.whoClicked as Player, this, 64))
                             } else {
                                 it.whoClicked.sendMessage(Component.text("아이템 부족!").color(TextColor.color(201, 0, 0)))
                                 it.whoClicked.playSound(
@@ -326,6 +336,9 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                 Component.text("5초 후 ${reachPlanet?.name}으로!")
                             )
                         )
+                    Instance.server.pluginManager.callEvent(RocketLaunchEvent(this, PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }!!.first,
+                        reachPlanet!!
+                    ))
                     Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
                         for (x in -3..3){
                             for (y in -3..3){

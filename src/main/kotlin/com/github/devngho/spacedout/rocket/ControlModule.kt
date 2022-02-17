@@ -5,6 +5,7 @@ import com.github.devngho.spacedout.addon.AddonManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import com.github.devngho.spacedout.util.Pair
 
 class ControlModule : Module {
     var isRided = false
@@ -45,5 +46,5 @@ class ControlModule : Module {
     override fun loadModuleValue(map: MutableMap<Any, Any>) {
         isRided = map.getOrDefault("isrided", false) as Boolean
     }
-    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf(Pair("isrided", isRided)) }
+    override fun saveModuleValue(): MutableMap<Any, Any> {return mutableMapOf(kotlin.Pair("isrided", isRided)) }
 }
