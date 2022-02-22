@@ -10,7 +10,7 @@ interface Addon {
     val name: String
 
     /**
-     * 애드온의 ID입니다.
+     * 애드온의 ID 입니다.
      */
     val id: String
 

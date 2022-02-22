@@ -20,8 +20,7 @@ class CraterPopulator(
             val centerZ = (source.z shl 4) + random.nextInt(16)
             val centerY = world.getHighestBlockYAt(centerX, centerZ)
             val center: Vector = BlockVector(centerX, centerY, centerZ)
-            var radius = 0
-            radius = if (random.nextInt(100) <= BIG_CRATER_CHANCE) {
+            val radius = if (random.nextInt(100) <= BIG_CRATER_CHANCE) {
                 random.nextInt(BIG_CRATER_SIZE - MIN_CRATER_SIZE + 1) + MIN_CRATER_SIZE
             } else {
                 random.nextInt(SMALL_CRATER_SIZE - MIN_CRATER_SIZE + 1) + MIN_CRATER_SIZE

@@ -20,6 +20,24 @@ enum class Fuel {
         override fun getUnit(): String {
             return "양동이"
         }
+    },
+    DIAMOND {
+        override fun toMaterial(): Material {
+            return Material.DIAMOND
+        }
+
+        override fun getUnit(): String {
+            return "개"
+        }
+    },
+    GUNPOWDER {
+        override fun getUnit(): String {
+            return "개"
+        }
+
+        override fun toMaterial(): Material {
+            return Material.GUNPOWDER
+        }
     };
     abstract fun toMaterial(): Material
     abstract fun getUnit(): String

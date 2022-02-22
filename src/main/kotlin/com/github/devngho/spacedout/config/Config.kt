@@ -34,6 +34,11 @@ object Config {
             configConfiguration.set("planets.useworldborder", false)
             configConfiguration.createSection("server")
             configConfiguration.set("server.requireresourcepack", true)
+            configConfiguration.set("server.defaultlang", "ko-kr")
+            configConfiguration.createSection("rocket")
+            configConfiguration.set("rocket.usefallinglaunch", true)
+            configConfiguration.set("rocket.fallinglaunchtick", 100)
+            configConfiguration.set("rocket.interactiondistance", 4.0)
         }
         PlanetManager.planets.forEach {
             configConfiguration.createSection("planet.${it.first.codeName}")

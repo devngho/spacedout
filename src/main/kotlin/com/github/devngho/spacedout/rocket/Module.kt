@@ -1,9 +1,12 @@
 package com.github.devngho.spacedout.rocket
 
+import com.github.devngho.nplug.api.structure.Structure
 import com.github.devngho.spacedout.addon.Addon
+import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.event.inventory.InventoryClickEvent
 
 interface Module {
     /**
@@ -34,6 +37,19 @@ interface Module {
      * 모듈의 아이콘의 아이템 종류입니다.
      */
     val graphicMaterial: Material
+
+    /**
+     * [structure]를 사용해 렌더링할 지 결정합니다.
+     * [LaunchingRocket]는 [structure]를 사용할 때에만 작동합니다.
+     */
+    val useStructure: Boolean
+
+    /**
+     * 모듈을 렌더링할 [Structure]를 설정합니다.
+     * [useStructure]가 true여야 사용됩니다.
+     *
+     */
+    val structure: Structure?
 
     /**
      * 모듈을 렌더링할 때 호출될 함수입니다.
@@ -82,4 +98,23 @@ interface Module {
      * 모듈을 추가한 애드온입니다.
      */
     val addedAddon: Addon
+
+    /**
+     * 모듈 아이템을 클릭할 때 호출되는 함수입니다.
+     * @param event 클릭 이벤트입니다.
+     */
+    fun onClick(event: InventoryClickEvent)
+
+    /**
+     * 아이템의 설명을 렌더링할 때 호출되는 함수입니다.
+     * @return 아이템의 설명 컴포넌트입니다.
+     */
+    fun renderLore(locale: String): List<Component>
+
+    /**
+     * 모듈의 보호 범위를 설정합니다.
+     * 로켓은 모듈 중 가장 최대 범위를 반경으로 보호됩니다.
+     * 구조물의 최대 반경으로 설정하세요.
+     */
+    val protectionRange: Int
 }

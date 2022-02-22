@@ -33,6 +33,8 @@ object AddonManager {
 
             ModuleManager.modules += CoalEngine()
             ModuleManager.modules += LavaEngine()
+            ModuleManager.modules += BigLavaEngine()
+            ModuleManager.modules += GunpowderEngine()
             ModuleManager.modules += ControlModule()
             ModuleManager.modules += StandardNosecone()
 

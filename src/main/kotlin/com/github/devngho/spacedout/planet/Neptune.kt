@@ -54,22 +54,18 @@ class Neptune : Planet{
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 512.0)
         configurationSection.set("position", 30.0)
-        configurationSection.set("name", "해왕성")
-        configurationSection.set("description", "가장 먼 행성.")
         configurationSection.set("graphicmaterial", "BLUE_ICE")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "해왕성")!!
-        description = configurationSection.getString("description", "가장 먼 행성.")!!
         pos = configurationSection.getDouble("position", 30.0)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "BLUE_ICE")!!.uppercase(), false) ?: Material.BLUE_ICE
         worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "해왕성"
     override val codeName: String = "neptune"
-    override var description: String = "가장 먼 행성."
+    override var name: String = "planets.${codeName}"
+    override var description: String = "planets.${codeName}_description"
     override val chunkGenerator: ChunkGenerator = NeptuneGenerator()
     override var pos: Double = 30.0
     override var graphicMaterial: Material = Material.BLUE_ICE

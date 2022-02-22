@@ -9,14 +9,14 @@ import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.generator.ChunkGenerator
 
 class Earth : Planet {
-    override var name: String = "지구"
     override val codeName: String = "earth"
+    override var name: String = "planets.$codeName"
     //사용하지 않음
     override val chunkGenerator: ChunkGenerator = Mercury.MercuryGenerator()
     override var pos: Double = 1.0
     override var graphicMaterial: Material = Material.GRASS_BLOCK
     override var worldBorderSize: Double = 0.0
-    override var description: String = "우리의 고향."
+    override var description: String = "planets.${codeName}_description"
     override val needEquipments: MutableList<Equipment> = mutableListOf()
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
@@ -25,14 +25,10 @@ class Earth : Planet {
     }
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("position", 1.0)
-        configurationSection.set("name", "지구")
-        configurationSection.set("description", "우리의 고향.")
         configurationSection.set("graphicmaterial", "GRASS_BLOCK")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "지구")!!
-        description = configurationSection.getString("description", "우리의 고향.")!!
         pos = configurationSection.getDouble("position", 1.0)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "GRASS_BLOCK")!!.uppercase(), false) ?: Material.GRASS_BLOCK
     }

@@ -14,24 +14,24 @@ import net.kyori.adventure.text.Component
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.io.File
 
-class LavaEngine : Engine {
-    override var height: Int = 8
-    override var maxFuelHeight: Int = 20
-    override var maxHeight: Int = 40
+class BigLavaEngine : Engine {
+    override var height: Int = 10
+    override var maxFuelHeight: Int = 50
+    override var maxHeight: Int = 60
     override val supportFuel: Fuel = Fuel.LAVA
-    override val id: String = "lavaengine"
+    override val id: String = "biglavaengine"
     override var name: String = "modules.${id}"
-    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 10))
+    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 50), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 30), Pair(Material.DIAMOND_BLOCK, 5))
     override var graphicMaterial: Material = Material.LAVA_BUCKET
-    override val sizeY: Int = 5
-    override var fuelDistanceRatio: Double = 0.3
+    override val sizeY: Int = 8
+    override var fuelDistanceRatio: Double = 0.25
     override val moduleType: ModuleType = ModuleType.ENGINE
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
     override val structure: Structure = StructureLoader.loadFromFile(File(Instance.plugin.dataFolder.absolutePath + File.separator + "resource/modules" + File.separator + "$id.json"))
     override val useStructure: Boolean = true
     override val protectionRange: Int = 3
-    override var speedDistanceRatio: Double = 0.01
+    override var speedDistanceRatio: Double = 0.0075
 
     override fun render(rocket: RocketDevice, position: Location) {
         for (x in -2..2) {
@@ -46,13 +46,18 @@ class LavaEngine : Engine {
         }
         for (x in -1..1) {
             for (z in -1..1) {
-                position.clone().add(x.toDouble(), 2.0, z.toDouble()).block.type = Material.IRON_BLOCK
+                position.clone().add(x.toDouble(), 2.0, z.toDouble()).block.type = Material.RED_CONCRETE
+            }
+        }
+        for (x in -1..1) {
+            for (z in -1..1) {
+                position.clone().add(x.toDouble(), 3.0, z.toDouble()).block.type = Material.IRON_BLOCK
             }
         }
     }
 
     override fun newInstance(): Module {
-        return LavaEngine()
+        return BigLavaEngine()
     }
 
     override fun initModuleConfig(configurationSection: ConfigurationSection) {
@@ -61,7 +66,7 @@ class LavaEngine : Engine {
         configurationSection.set("maxheight", 40)
         configurationSection.set("graphicmaterial", "LAVA_BUCKET")
         configurationSection.set("fueldistanceratio", 0.3)
-        configurationSection.set("speeddistanceratio", 0.01)
+        configurationSection.set("speeddistanceratio", 0.075)
     }
 
     override fun loadModuleConfig(configurationSection: ConfigurationSection) {
@@ -70,7 +75,7 @@ class LavaEngine : Engine {
         maxHeight = configurationSection.getInt("maxheight", 20)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "LAVA_BUCKET")!!.uppercase(), false) ?: Material.LAVA_BUCKET
         fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.3)
-        speedDistanceRatio = configurationSection.getDouble("speeddistanceratio", 0.01)
+        speedDistanceRatio = configurationSection.getDouble("speeddistanceratio", 0.075)
     }
 
     override fun loadModuleValue(map: MutableMap<Any, Any>) {}

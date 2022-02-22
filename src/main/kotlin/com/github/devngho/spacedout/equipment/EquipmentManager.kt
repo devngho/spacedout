@@ -1,6 +1,8 @@
 package com.github.devngho.spacedout.equipment
 
+import com.github.devngho.spacedout.config.I18n
 import com.github.devngho.spacedout.config.PlayerData
+import com.github.devngho.spacedout.config.getLang
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.GuiType
 import dev.triumphteam.gui.guis.Gui
@@ -32,12 +34,26 @@ object EquipmentManager {
         if (!playerEquipmentGui.containsKey(player.uniqueId)) {
             val gui = Gui.gui()
                 .type(GuiType.DISPENSER)
-                .title(Component.text("방호구").decoration(TextDecoration.ITALIC, false))
+                .title(I18n.getComponent(player.getLang(), "equipment.name").decoration(TextDecoration.ITALIC, false))
                 .create()
+            gui.setOpenGuiAction {
+                val p = it.player as Player
+                val helmetInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(p.getLang(), "equipment.helmet").decoration(TextDecoration.ITALIC, false)).asGuiItem { e -> e.isCancelled = true }
+                val chestplateInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(p.getLang(), "equipment.chestplate").decoration(TextDecoration.ITALIC, false)).asGuiItem { e -> e.isCancelled = true }
+                val bootsInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(p.getLang(), "equipment.boots").decoration(TextDecoration.ITALIC, false)).asGuiItem { e -> e.isCancelled = true }
+                val blockSlotItem = ItemBuilder.from(Material.RED_STAINED_GLASS_PANE).name(Component.text(" ")).asGuiItem { e -> e.isCancelled = true }
+                gui.setItem(3, helmetInfoItem)
+                gui.setItem(4, chestplateInfoItem)
+                gui.setItem(5, bootsInfoItem)
+                gui.setItem(6, blockSlotItem)
+                gui.setItem(7, blockSlotItem)
+                gui.setItem(8, blockSlotItem)
+                gui.update()
+            }
             gui.disableItemSwap()
-            val helmetInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("헬멧").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
-            val chestplateInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("갑옷").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
-            val bootsInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(Component.text("부츠").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
+            val helmetInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(player.getLang(), "equipment.helmet").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
+            val chestplateInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(player.getLang(), "equipment.chestplate").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
+            val bootsInfoItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(I18n.getComponent(player.getLang(), "equipment.boots").decoration(TextDecoration.ITALIC, false)).asGuiItem { it.isCancelled = true }
             val blockSlotItem = ItemBuilder.from(Material.RED_STAINED_GLASS_PANE).name(Component.text(" ")).asGuiItem { it.isCancelled = true }
             gui.setItem(3, helmetInfoItem)
             gui.setItem(4, chestplateInfoItem)
@@ -47,9 +63,9 @@ object EquipmentManager {
             gui.setItem(8, blockSlotItem)
             gui.setOpenGuiAction {
                 val playerEquip = PlayerData.getPlayerData(it.player.uniqueId).getConfigurationSection("player.equip")
-                it.inventory.setItem(0, equipments.find { f -> playerEquip?.get("HELMET") == f.id }?.toItemStack() ?: ItemStack(Material.AIR))
-                it.inventory.setItem(1, equipments.find { f -> playerEquip?.get("CHESTPLATE") == f.id }?.toItemStack() ?: ItemStack(Material.AIR))
-                it.inventory.setItem(2, equipments.find { f -> playerEquip?.get("BOOTS") == f.id }?.toItemStack() ?: ItemStack(Material.AIR))
+                it.inventory.setItem(0, equipments.find { f -> playerEquip?.get("HELMET") == f.id }?.toItemStack(player.getLang()) ?: ItemStack(Material.AIR))
+                it.inventory.setItem(1, equipments.find { f -> playerEquip?.get("CHESTPLATE") == f.id }?.toItemStack(player.getLang()) ?: ItemStack(Material.AIR))
+                it.inventory.setItem(2, equipments.find { f -> playerEquip?.get("BOOTS") == f.id }?.toItemStack(player.getLang()) ?: ItemStack(Material.AIR))
             }
             gui.setCloseGuiAction {
                 val helmetItem = it.inventory.getItem(0)

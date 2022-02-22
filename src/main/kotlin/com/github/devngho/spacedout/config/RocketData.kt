@@ -20,7 +20,7 @@ object RocketData {
                     ?: UUID.fromString(f.nameWithoutExtension)] = rocketData
             }
         }
-        rocketCache.forEach { t, u ->
+        rocketCache.forEach { (_, u) ->
             RocketManager.loadRocketDevice(u)
         }
     }
@@ -68,6 +68,11 @@ object RocketData {
         RocketManager.saveRocketDevice()
         val userdata =
             File(Instance.plugin.dataFolder, File.separator + "rockets")
+        userdata.walk().forEach { f ->
+            if (RocketManager.rockets.find { it.uniqueId.toString() == f.nameWithoutExtension } != null){
+                f.delete()
+            }
+        }
         rocketCache.forEach {
             it.value.save(File(userdata, File.separator + it.key + ".yml"))
         }

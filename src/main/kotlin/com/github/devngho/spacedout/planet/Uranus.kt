@@ -54,22 +54,18 @@ class Uranus : Planet{
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 512.0)
         configurationSection.set("position", 19.2)
-        configurationSection.set("name", "천왕성")
-        configurationSection.set("description", "춥고 춥고 얼어 있습니다.")
         configurationSection.set("graphicmaterial", "ICE")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "천왕성")!!
-        description = configurationSection.getString("description", "춥고 춥고 얼어 있습니다.")!!
         pos = configurationSection.getDouble("position", 19.2)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ICE")!!.uppercase(), false) ?: Material.ICE
         worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "천왕성"
     override val codeName: String = "uranus"
-    override var description: String = "춥고 춥고 얼어 있습니다."
+    override var name: String = "planets.${codeName}"
+    override var description: String = "planets.${codeName}_description"
     override val chunkGenerator: ChunkGenerator = UranusGenerator()
     override var pos: Double = 19.2
     override var graphicMaterial: Material = Material.ICE

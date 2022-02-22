@@ -1,15 +1,14 @@
 package com.github.devngho.spacedout
 
 import com.github.devngho.spacedout.addon.AddonManager
-import com.github.devngho.spacedout.config.Config
-import com.github.devngho.spacedout.config.PlayerData
-import com.github.devngho.spacedout.config.RocketData
+import com.github.devngho.spacedout.config.*
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.PlanetManager
 import com.github.devngho.spacedout.rocket.*
 import dev.jorel.commandapi.CommandAPICommand
+import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
@@ -25,13 +24,49 @@ import org.bukkit.NamespacedKey
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.util.*
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 
 class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
+        val jarFile = File("plugins/spacedout.jar")
+        if (!jarFile.exists()) {
+            logger.warning("spacedout plugin jar file name must be \"spacedout.jar\"")
+            server.pluginManager.disablePlugin(this)
+            return
+        }else{
+            val jar = JarFile(jarFile)
+            if (!dataFolder.exists()){
+                dataFolder.mkdir()
+                val enumEntries: Enumeration<*> = jar.entries()
+                while (enumEntries.hasMoreElements()) {
+                    val file = enumEntries.nextElement() as JarEntry
+                    val f = File(dataFolder.absolutePath + File.separator + file.name)
+                    if (file.isDirectory && file.name.contains("resource")) {
+                        f.mkdir()
+                        continue
+                    }else if(file.name.contains("resource")) {
+                        val `is`: InputStream = jar.getInputStream(file)
+                        val fos = FileOutputStream(f)
+                        while (`is`.available() > 0) {
+                            fos.write(`is`.read())
+                        }
+                        fos.close()
+                        `is`.close()
+                    }
+                }
+                jar.close()
+            }
+        }
         AddonManager.registerAddon()
         Config.loadConfigs()
+        I18n.loadAll()
         PlayerData.loadAll()
         PlanetManager.generateWorlds()
         RocketData.loadAll()
@@ -42,6 +77,9 @@ class Plugin : JavaPlugin() {
         rocketInstallerRecipe.setIngredient('s', Material.STONE)
         rocketInstallerRecipe.setIngredient('i', Material.IRON_BLOCK)
         server.addRecipe(rocketInstallerRecipe)
+        EquipmentManager.equipments.forEach {
+            server.addRecipe(it.recipe)
+        }
     }
 
     override fun onLoad() {
@@ -50,6 +88,7 @@ class Plugin : JavaPlugin() {
         Instance.plugin = this
         // 커맨드 등록
         CommandAPICommand("spacedout")
+            .withPermission(CommandPermission.OP)
             .withSubcommand(CommandAPICommand("rocket")
                     .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray() }).executesPlayer(
                             PlayerCommandExecutor { sender, args ->
@@ -74,14 +113,16 @@ class Plugin : JavaPlugin() {
                     .withSubcommand(CommandAPICommand("all")
                         .executes(CommandExecutor { sender, _ ->
                             Config.loadConfigs()
+                            I18n.loadAll()
                             sender.sendMessage(Component.text("Spacedout Plugin Config reloaded!").color(TextColor.color(0, 255, 0)))
                         }))
-                    .withSubcommand(CommandAPICommand("save")
-                        .executes(CommandExecutor { sender, _ ->
-                            Config.saveConfigs()
-                            sender.sendMessage(Component.text("Spacedout Plugin config saved!").color(TextColor.color(0, 255, 0)))
-                        })
                     )
+                .withSubcommand(CommandAPICommand("save")
+                    .executes(CommandExecutor { sender, _ ->
+                        Config.saveConfigs()
+                        I18n.saveLangData()
+                        sender.sendMessage(Component.text("Spacedout Plugin config saved!").color(TextColor.color(0, 255, 0)))
+                    })
                 )
             )
             .withSubcommand(CommandAPICommand("equip")
@@ -95,7 +136,7 @@ class Plugin : JavaPlugin() {
                     .executesPlayer(PlayerCommandExecutor { sender, args ->
                         val found = EquipmentManager.equipments.find { it.id == args[0] }
                         if (found != null){
-                            sender.inventory.addItem(found.toItemStack())
+                            sender.inventory.addItem(found.toItemStack(sender.getLang()))
                         }
                     })))
             .withSubcommand(CommandAPICommand("addon")
@@ -125,6 +166,12 @@ class Plugin : JavaPlugin() {
                     }))
             )
             .register()
+        CommandAPICommand("equip")
+            .withAliases("eq")
+            .executesPlayer(PlayerCommandExecutor { sender, _ ->
+                EquipmentManager.playerEquipmentGui[sender.uniqueId]?.open(sender)
+            })
+            .register()
     }
 
     override fun onDisable() {
@@ -132,6 +179,7 @@ class Plugin : JavaPlugin() {
         Config.saveConfigs()
         PlayerData.savePlayerData()
         RocketData.saveRocketData()
+        I18n.saveLangData()
     }
     override fun getDefaultWorldGenerator(worldName: String, id: String?): ChunkGenerator {
         return PlanetManager.planets.find { it.first.codeName == worldName }?.second?.generator!!

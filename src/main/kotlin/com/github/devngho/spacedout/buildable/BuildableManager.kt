@@ -8,11 +8,12 @@ import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 
+@Suppress("unused")
 object BuildableManager {
-    val builded: MutableList<Buildable> = mutableListOf()
-    val buildables: MutableList<Buildable> = mutableListOf()
+    val built: MutableList<Buildable> = mutableListOf()
+    val buildable: MutableList<Buildable> = mutableListOf()
     fun register(buildable: Buildable){
-        buildables += buildable
+        this.buildable += buildable
         val recipe = ShapedRecipe(NamespacedKey(com.github.devngho.spacedout.Instance.plugin, buildable.codeName),
             ItemStack(buildable.placeItemMaterial).apply { itemMeta = itemMeta.apply { displayName(Component.text(buildable.placeItemName).decoration(TextDecoration.ITALIC, false))
             lore(listOf(Component.text("from. ${buildable.addedAddon.name}").color(TextColor.color(127, 127, 127))))} })

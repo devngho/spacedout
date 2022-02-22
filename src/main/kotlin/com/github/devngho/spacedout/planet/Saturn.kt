@@ -56,22 +56,18 @@ class Saturn : Planet{
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 512.0)
         configurationSection.set("position", 10.0)
-        configurationSection.set("name", "토성")
-        configurationSection.set("description", "고리가 없어요.")
         configurationSection.set("graphicmaterial", "GRAY_CONCRETE_POWDER")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "토성")!!
-        description = configurationSection.getString("description", "고리가 없어요")!!
         pos = configurationSection.getDouble("position", 10.0)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "GRAY_CONCRETE_POWDER")!!.uppercase(), false) ?: Material.GRAY_CONCRETE_POWDER
         worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
     }
 
-    override var name: String = "토성"
     override val codeName: String = "saturn"
-    override var description: String = "고리가 없어요"
+    override var name: String = "planets.${codeName}"
+    override var description: String = "planets.${codeName}_description"
     override val chunkGenerator: ChunkGenerator = SaturnGenerator()
     override var pos: Double = 10.0
     override var graphicMaterial: Material = Material.GRAY_CONCRETE_POWDER

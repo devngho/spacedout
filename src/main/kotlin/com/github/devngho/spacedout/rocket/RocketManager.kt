@@ -35,7 +35,7 @@ object RocketManager {
         device.reachPlanet = PlanetManager.planets.find { it.first.codeName == conf.getString("reachplanet") }?.first
         val moduleData = conf.getMapList("moduledatas")
         device.modules.clear()
-        conf.getStringList("modules").forEachIndexed { i, it ->
+        conf.getStringList("resource/modules").forEachIndexed { i, it ->
             val module = ModuleManager.modules.find { f -> f.id == it }
             if (module != null){
                 val instance = module.newInstance()
@@ -53,7 +53,7 @@ object RocketManager {
             conf.set("location", it.installedLocation)
             conf.set("uuid", it.uniqueId.toString())
             conf.set("reachplanet", it.reachPlanet?.codeName)
-            conf.set("modules", it.modules.map { t -> t.id })
+            conf.set("resource/modules", it.modules.map { t -> t.id })
             conf.set("moduledatas", it.modules.map { t -> t.saveModuleValue() })
             conf.set("fuelheight", it.fuelHeight)
             Pair(it.uniqueId, conf)

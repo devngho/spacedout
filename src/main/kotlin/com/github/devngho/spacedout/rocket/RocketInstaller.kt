@@ -1,6 +1,8 @@
 package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.spacedout.Instance
+import com.github.devngho.spacedout.config.I18n
+import com.github.devngho.spacedout.config.getLang
 import com.github.devngho.spacedout.event.RocketCreateEvent
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
@@ -22,19 +24,19 @@ val rocketInstaller: ItemStack = ItemStack(Material.DIAMOND).apply { itemMeta = 
 internal fun onUseRocketInstaller(event: PlayerInteractEvent){
     if (event.action == Action.RIGHT_CLICK_BLOCK && event.hasBlock()) {
         val engineSelectorGui = Gui.scrolling(ScrollType.HORIZONTAL)
-            .title(Component.text("설치할 엔진").decoration(TextDecoration.ITALIC, false))
+            .title(Component.text(I18n.getString(event.player.getLang(), "module.addmodulepick")).decoration(TextDecoration.ITALIC, false))
             .rows(1)
             .pageSize(7)
             .create()
         engineSelectorGui.setItem(
             1,
             1,
-            ItemBuilder.from(Material.PAPER).name(Component.text("이전").decoration(TextDecoration.ITALIC, false))
+            ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(event.player.getLang(), "text.prov")).decoration(TextDecoration.ITALIC, false))
                 .asGuiItem { engineSelectorGui.previous() })
         engineSelectorGui.setItem(
             1,
             9,
-            ItemBuilder.from(Material.PAPER).name(Component.text("다음").decoration(TextDecoration.ITALIC, false))
+            ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(event.player.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
                 .asGuiItem { engineSelectorGui.next() })
         ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.forEach {
             val moduleItem = ItemBuilder.from(it.graphicMaterial).name(
@@ -51,16 +53,16 @@ internal fun onUseRocketInstaller(event: PlayerInteractEvent){
                         )
                     )
                 }) {
-                Component.text("자원 충분").color(TextColor.color(29, 219, 22)).decoration(TextDecoration.ITALIC, false)
+                Component.text(I18n.getString(event.player.getLang(), "module.haveresource")).color(TextColor.color(29, 219, 22)).decoration(TextDecoration.ITALIC, false)
             } else {
-                Component.text("자원 부족").color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
+                Component.text(I18n.getString(event.player.getLang(), "module.nohaveresource")).color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
             }
-            var requireComp = Component.text("필요 자원 : ")
+            var requireComp = Component.text("${I18n.getString(event.player.getLang(), "module.needresource")} : ")
             it.buildRequires.forEachIndexed { i, item ->
                 requireComp = requireComp.append(Component.translatable(item.first.translationKey())).append(Component.text("x${item.second}${if(it.buildRequires.count() - 1 != i){", "}else{""}}"))
             }
             moduleLore += requireComp.color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
-            moduleLore += Component.text("모듈 중량 : ${it.height}").color(TextColor.color(255, 255, 255))
+            moduleLore += Component.text("${I18n.getString(event.player.getLang(), "module.height")} : ${it.height}").color(TextColor.color(255, 255, 255))
                 .decoration(TextDecoration.ITALIC, false)
             moduleLore += Component.text("from. ${it.addedAddon.name}").color(TextColor.color(127, 127, 127))
             moduleItem.lore(moduleLore.toList())
@@ -78,7 +80,7 @@ internal fun onUseRocketInstaller(event: PlayerInteractEvent){
                     event.item!!.amount -= 1
                 } else {
                     e.whoClicked.sendMessage(
-                        Component.text("설치할 자원이 부족하거나 설치할 수 없습니다.").color(TextColor.color(255, 0, 0))
+                        Component.text(I18n.getString(event.player.getLang(), "module.installfailed")).color(TextColor.color(255, 0, 0))
                     )
                     engineSelectorGui.close(e.whoClicked)
                 }

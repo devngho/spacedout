@@ -22,4 +22,9 @@ interface Engine : Module, Cloneable{
      * 로켓의 연비입니다.
      */
     val fuelDistanceRatio: Double
+
+    /**
+     * 로켓의 틱 당 AU입니다.
+     */
+    var speedDistanceRatio: Double
 }

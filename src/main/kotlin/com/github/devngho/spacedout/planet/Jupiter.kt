@@ -56,22 +56,18 @@ class Jupiter : Planet{
     override fun initPlanetConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("worldbordersize", 1024.0)
         configurationSection.set("position", 5.2)
-        configurationSection.set("name", "목성")
-        configurationSection.set("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")
         configurationSection.set("graphicmaterial", "ORANGE_CONCRETE_POWDER")
     }
 
     override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
-        name = configurationSection.getString("name", "목성")!!
-        description = configurationSection.getString("description", "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.")!!
         pos = configurationSection.getDouble("position", 5.2)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ORANGE_CONCRETE_POWDER")!!.uppercase(), false) ?: Material.ORANGE_CONCRETE_POWDER
         worldBorderSize = configurationSection.getDouble("worldbordersize", 1024.0)
     }
 
-    override var name: String = "목성"
     override val codeName: String = "jupiter"
-    override var description: String = "이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다."
+    override var name: String = "planets.${codeName}"
+    override var description: String = "planets.${codeName}_description"
     override val chunkGenerator: ChunkGenerator = JupiterGenerator()
     override var pos: Double = 5.2
     override var graphicMaterial: Material = Material.ORANGE_CONCRETE_POWDER

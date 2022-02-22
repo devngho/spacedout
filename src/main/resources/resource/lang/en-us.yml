@@ -1,0 +1,79 @@
+equipment:
+  helmet: Helmet
+  chestplate: Chestplate
+  boots: Boots
+  name: Equipments
+  needequipment: Require equipments
+equipments:
+  jetpack: Jetpack
+  oxygenmask: Oxygen mask
+planets:
+  earth: Earth
+  earth_description: Our hometown.
+  jupiter: Jupiter
+  jupiter_description: Hydrogen was not realized and it became lava.
+  mars: Mars
+  mars_description: Iron is distributed and covered with sand.
+  mercury: Mercury
+  mercury_description: It is quite barren, but there is a lot of lava.
+  neptune: Neptune
+  neptune_description: The furthest and cold planet.
+  saturn: Saturn
+  saturn_description: Saturn without realization of rings
+  uranus: Uranus
+  uranus_description: It's cold, far, and frozen.
+  venus: Venus
+  venus_description: It is quite barren, but there is a lot of gold.
+modules:
+  biglavaengine: Big lava engine
+  coalengine: Coal engine
+  controlmodule: Control module
+  lavaengine: Lava engine
+  standardnosecone: Standard nosecone
+rocket:
+  name: Rocket
+  reachplanet: Destination planet
+  canreach: Can reach
+  cantreach: Can't reach
+  canround: Can round trip
+  cantround: Can't round trip
+  canequipment: Equipment enough
+  cantequipment: Equipment not enough
+  fuelheight: Fuel height
+  maxfuelheight: Max fuel height
+  addfuel: Add fuel
+  reachdistance: Max reachable distance
+  compatiblefuel: Compatible fuel
+  itemneed: Need more item!
+  launch: Launch!
+  engine: Engine
+  nosecone: Nosecone
+  fuel: Fuel
+  reachplanetpicked: Set destination planet
+  reachaftersecond: "Go {name} after {second}second!"
+  selectrider: Select rider
+  selectrideronline: Selected rider online
+  removerocket: Remove Rocket
+module:
+  name: Module
+  allheight: Total height
+  height: Height
+  rightclickremove: Right click to remove module
+  addmodule: Add module
+  addmodulepick: Add module
+  caninstall: Can install
+  cantinstall: Can't install
+  haveresource: Resource enough
+  nohaveresource: Resource not enough
+  needresource: Require resources
+  installfailed: Need more resource or can't install!
+planet:
+  name: Planet
+  hereplanet: Here planet
+  distance: Distance
+text:
+  prov: Prov
+  next: Next
+  leftclick: Left Click
+  rightclick: Right Click
+  shiftclick: SHIFT + Left Click

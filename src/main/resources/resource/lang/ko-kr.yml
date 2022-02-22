@@ -1,0 +1,79 @@
+equipment:
+  helmet: 헬멧
+  chestplate: 갑옷
+  boots: 부츠
+  name: 방호구
+  needequipment: 필요 방호구
+equipments:
+  jetpack: 제트팩
+  oxygenmask: 산소 마스크
+planets:
+  earth: 지구
+  earth_description: 우리의 고향.
+  jupiter: 목성
+  jupiter_description: 이 행성은 수소가 있었는데 구현의 한계로 용암이 되었답니다.
+  mars: 화성
+  mars_description: 이 행성은 철이 분포해 있고 모래로 덮여 있습니다.
+  mercury: 수성
+  mercury_description: 이 행성은 상당히 척박하지만 용암이 많습니다.
+  neptune: 해왕성
+  neptune_description: 가장 멀고 추운 행성.
+  saturn: 토성
+  saturn_description: 고리가 구현의 한계로 사라진 토성.
+  uranus: 천왕성
+  uranus_description: 춥고 멀고 얼어 있습니다.
+  venus: 금성
+  venus_description: 금 원석이 분포해 있는 척박한 곳.
+modules:
+  biglavaengine: 대형 용암 엔진
+  coalengine: 석탄 엔진
+  controlmodule: 탑승 모듈
+  lavaengine: 용암 엔진
+  standardnosecone: 일반 노즈콘
+rocket:
+  name: 로켓
+  reachplanet: 목적 행성
+  canreach: 도달 가능
+  cantreach: 도달 불가능
+  canround: 왕복 가능
+  cantround: 왕복 불가능
+  canequipment: 방호복 충분
+  cantequipment: 방호복 불충분
+  fuelheight: 연료 잔량
+  maxfuelheight: 최대 연료 중량
+  addfuel: 연료 투입
+  reachdistance: 도달 가능 거리
+  compatiblefuel: 호환 가능 연료
+  itemneed: 아이템 부족!
+  launch: 발사!
+  engine: 엔진
+  nosecone: 노즈콘
+  fuel: 연료
+  reachplanetpicked: 목적지 설정
+  reachaftersecond: "{second}초 후 {name} 행성으로!"
+  selectrider: 탑승자 선택
+  selectrideronline: 탑승자 온라인
+  removerocket: 로켓 삭제
+module:
+  name: 모듈
+  allheight: 총 중량
+  height: 중량
+  rightclickremove: 우클릭해서 모듈 제거
+  addmodule: 모듈 추가
+  addmodulepick: 추가할 모듈
+  caninstall: 설치 가능
+  cantinstall: 설치 불가능
+  haveresource: 자원 충분
+  nohaveresource: 자원 부족
+  needresource: 필요 자원
+  installfailed: 자원이 부족하거나 설치할 수 없습니다!
+planet:
+  name: 행성
+  hereplanet: 현재 행성
+  distance: 거리
+text:
+  prov: 이전
+  next: 다음
+  leftclick: 좌클릭
+  rightclick: 우클릭
+  shiftclick: 웅크리기 + 클릭
