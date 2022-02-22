@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.github.devngho"
-version = "v0.2-alpha6"
+version = "v1.0-PR0"
 
 repositories {
     mavenCentral()
@@ -95,4 +95,5 @@ bukkit {
     authors = listOf("ngho")
     libraries = listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
     depend = listOf("CommandAPI")
+    version = "v1.0-PR0"
 }
