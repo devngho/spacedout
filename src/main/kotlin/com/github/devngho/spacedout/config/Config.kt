@@ -39,7 +39,12 @@ object Config {
             configConfiguration.set("rocket.usefallinglaunch", true)
             configConfiguration.set("rocket.fallinglaunchtick", 100)
             configConfiguration.set("rocket.interactiondistance", 4.0)
+            configConfiguration.save(configData)
         }
+    }
+    fun loadPlanetModuleConfigs(){
+        val configData =
+            File(Instance.plugin.dataFolder, File.separator + "config.yml")
         PlanetManager.planets.forEach {
             configConfiguration.createSection("planet.${it.first.codeName}")
             val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")

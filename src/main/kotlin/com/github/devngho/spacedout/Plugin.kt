@@ -64,9 +64,10 @@ class Plugin : JavaPlugin() {
                 jar.close()
             }
         }
-        AddonManager.registerAddon()
-        Config.loadConfigs()
         I18n.loadAll()
+        Config.loadConfigs()
+        AddonManager.registerAddon()
+        Config.loadPlanetModuleConfigs()
         PlayerData.loadAll()
         PlanetManager.generateWorlds()
         RocketData.loadAll()

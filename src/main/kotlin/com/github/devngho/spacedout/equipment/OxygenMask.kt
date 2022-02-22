@@ -20,7 +20,7 @@ class OxygenMask : Equipment {
     override val recipe: Recipe
     init {
         recipe = ShapedRecipe(NamespacedKey(Instance.plugin, "oxygenmask"), this.toItemStack(Config.configConfiguration.getString("server.defaultlang", "en-us")!!))
-        recipe.shape("   ", " g ", "i")
+        recipe.shape("   ", " g ", " i ")
         recipe.setIngredient('g', Material.GLASS)
         recipe.setIngredient('i', Material.IRON_INGOT)
     }

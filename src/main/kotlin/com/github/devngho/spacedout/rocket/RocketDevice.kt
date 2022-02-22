@@ -539,7 +539,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                         I18n.getString(p.getLang(), "rocket.reachaftersecond")
                                             .replace("{name}", I18n.getString(p.getLang(), reachPlanet!!.name)).replace(
                                                 "{second}",
-                                                (distance * engine.fuelDistanceRatio / 20).toString()
+                                                (distance / engine.speedDistanceRatio / 20).toString()
                                             )
                                     )
                                 )
@@ -601,8 +601,8 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
                                 render()
                                 isLaunching = false
-                            }, (distance * engine.fuelDistanceRatio).toLong())
-                        }, (distance * engine.fuelDistanceRatio).toLong())
+                            }, (distance / engine.speedDistanceRatio).toLong())
+                        }, (distance / engine.speedDistanceRatio).toLong())
                     } else {
                         it.whoClicked.sendMessage(
                             Component.text(I18n.getString(p.getLang(), "module.installfailed"))
