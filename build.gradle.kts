@@ -28,6 +28,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.1")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.5.3")
+    implementation("xyz.xenondevs:particle:1.7")
     implementation(files("lib/nplug.jar"))
 }
 

@@ -30,6 +30,7 @@ modules:
   controlmodule: Control module
   lavaengine: Lava engine
   standardnosecone: Standard nosecone
+  gunpowderengine: Gunpowder engine
 rocket:
   name: Rocket
   reachplanet: Destination planet

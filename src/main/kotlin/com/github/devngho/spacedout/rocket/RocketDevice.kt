@@ -1,3 +1,13 @@
+/*
+Copyright 2022, ngho
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.spacedout.Instance
@@ -43,7 +53,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
     var isLaunching = false
 
     init {
-        val blockLocation = installedLocation.toCenterLocation()
+        val blockLocation = installedLocation.toBlockLocation()
         installedLocation.apply {
             x = blockLocation.x
             y = blockLocation.y
@@ -486,13 +496,15 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         }else{
             Component.text(I18n.getString(p.getLang(), "rocket.selectrideronline")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
         }
-        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null || reachPlanet != null) {
+        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null && reachPlanet != null) {
             if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { (it as ControlModule).ridedPlayer != null }) {
                 if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { Instance.server.getOfflinePlayer((it as ControlModule).ridedPlayer!!).isOnline }) {
                     if (
                         modules.filter { f -> f.id == "controlmodule" && f is ControlModule }
                             .map { Instance.server.getOfflinePlayer((it as ControlModule).ridedPlayer!!).player!! }
-                            .map { EquipmentManager.getPlayerEquipments(it) }
+                            .map {
+                                EquipmentManager.getPlayerEquipments(it)
+                            }
                             .all { reachPlanet!!.needEquipments.all { c -> it.map { m -> m.value.id }.contains(c.id) } }
                     ){
                         Component.text(I18n.getString(p.getLang(), "rocket.canequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(0, 255, 0))
@@ -595,6 +607,10 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                     )
                                 )
                             }
+                            Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                                render()
+                                isLaunching = false
+                            }, (distance / engine.speedDistanceRatio).toLong())
                             if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
                                 LaunchingRocket(modules, installedLocation.clone(), true)
                             }
@@ -635,6 +651,11 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                             resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
                         }
                     }
+                }
+            }
+            modules.forEach { m ->
+                m.buildRequires.forEach { r ->
+                    it.whoClicked.location.world.dropItem(it.whoClicked.location, ItemStack(r.first, r.second))
                 }
             }
             RocketManager.rockets.removeIf { r -> r.uniqueId == this.uniqueId }

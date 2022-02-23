@@ -30,6 +30,7 @@ modules:
   controlmodule: 탑승 모듈
   lavaengine: 용암 엔진
   standardnosecone: 일반 노즈콘
+  gunpowderengine: 화약 엔진
 rocket:
   name: 로켓
   reachplanet: 목적 행성

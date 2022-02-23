@@ -1,3 +1,13 @@
+/*
+Copyright 2022, ngho
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.nplug.api.block.FallingBlock
@@ -7,8 +17,10 @@ import com.github.devngho.spacedout.config.Config
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.util.Vector
+import xyz.xenondevs.particle.ParticleBuilder
+import xyz.xenondevs.particle.ParticleEffect
 import kotlin.math.abs
-import kotlin.math.min
+
 
 class LaunchingRocket(val modules: List<Module>, val location: Location, landing: Boolean) {
     private var fallingBlocksPerModule = mutableListOf<Pair<Vector, FallingBlocks>>()
@@ -36,7 +48,13 @@ class LaunchingRocket(val modules: List<Module>, val location: Location, landing
                     Pair(it.first, it.second)
                 }.toMutableList()
                 location.y += (tick / 60.0) * (tick / 60.0)
-                location.world.spawnParticle(Particle.FLAME, location, 10)
+                ParticleBuilder(ParticleEffect.FLAME, location)
+                    .setOffsetY(1f)
+                    .setAmount(30)
+                    .setOffsetX(0.25f)
+                    .setOffsetZ(0.25f)
+                    .setSpeed(0.1f)
+                    .display()
                 tick += 1
             }, 0, 1)
         }else{

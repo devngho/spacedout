@@ -1,5 +1,5 @@
 name: spacedout
-version: v0.2-alpha6
+version: v1.0-PR0
 main: com.github.devngho.spacedout.Plugin
 load: POSTWORLD
 authors:

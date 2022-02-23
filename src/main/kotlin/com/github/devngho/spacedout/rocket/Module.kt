@@ -1,3 +1,13 @@
+/*
+Copyright 2022, ngho
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.nplug.api.structure.Structure
@@ -79,8 +89,9 @@ interface Module {
     /**
      * 모듈의 설정 값을 읽어들입니다.
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
+     * @return 초기화해야 할 때 true를 반환하세요.
      */
-    fun loadModuleConfig(configurationSection: ConfigurationSection)
+    fun loadModuleConfig(configurationSection: ConfigurationSection): Boolean
 
     /**
      * 모듈이 저장 후 로딩될 때 Map 를 읽어 로딩합니다.
