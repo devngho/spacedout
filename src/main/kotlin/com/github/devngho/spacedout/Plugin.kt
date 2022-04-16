@@ -45,12 +45,15 @@ import java.util.jar.JarFile
 class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
+
+        //jar 분해해 리소스 해체
         val jarFile = File("plugins/spacedout.jar")
         if (!jarFile.exists()) {
             logger.warning("spacedout plugin jar file name must be \"spacedout.jar\"")
             server.pluginManager.disablePlugin(this)
             return
         }else{
+            //리소스 뜯기
             val jar = JarFile(jarFile)
             if (!dataFolder.exists()){
                 dataFolder.mkdir()
@@ -74,6 +77,8 @@ class Plugin : JavaPlugin() {
                 jar.close()
             }
         }
+
+        //수많은 Load
         I18n.loadAll()
         Config.loadConfigs()
         AddonManager.registerAddon()
@@ -81,6 +86,7 @@ class Plugin : JavaPlugin() {
         PlayerData.loadAll()
         PlanetManager.generateWorlds()
         RocketData.loadAll()
+
         server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
         val rocketInstallerRecipe = ShapedRecipe(NamespacedKey(this, "rocketinstaller"), rocketInstaller)
