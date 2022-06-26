@@ -1,5 +1,5 @@
 name: spacedout
-version: 1.0
+version: 1.1
 main: com.github.devngho.spacedout.Plugin
 load: POSTWORLD
 authors:
@@ -9,4 +9,4 @@ depend:
 libraries:
  - org.jetbrains.kotlin:kotlin-reflect:1.6.10
  - org.jetbrains.kotlin:kotlin-stdlib:1.6.10
-api-version: 1.18
+api-version: 1.19

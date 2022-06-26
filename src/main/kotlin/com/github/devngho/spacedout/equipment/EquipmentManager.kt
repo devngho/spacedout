@@ -19,6 +19,7 @@ import dev.triumphteam.gui.guis.Gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.*
@@ -26,7 +27,7 @@ import java.util.*
 object EquipmentManager {
     val equipments: MutableList<Equipment> = mutableListOf()
     val playerEquipmentGui = mutableMapOf<UUID, Gui>()
-    fun getPlayerEquipments(player: Player): MutableMap<EquipmentType, Equipment> {
+    fun getPlayerEquipments(player: OfflinePlayer): MutableMap<EquipmentType, Equipment> {
         val playerEquipments = mutableMapOf<EquipmentType, Equipment>()
         val playerData = PlayerData.getPlayerData(player.uniqueId).getConfigurationSection("player.equip")
         val k = playerData?.getKeys(false)

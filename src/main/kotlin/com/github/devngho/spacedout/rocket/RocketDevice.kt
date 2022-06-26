@@ -14,7 +14,7 @@ import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.I18n
 import com.github.devngho.spacedout.config.StructureLoader
-import com.github.devngho.spacedout.config.getLang
+import com.github.devngho.spacedout.config.I18n.getLang
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.event.RocketFuelChargeEvent
 import com.github.devngho.spacedout.event.RocketLaunchEvent
@@ -240,7 +240,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         }
                         Instance.server.pluginManager.callEvent(RocketModuleRemoveEvent(it.whoClicked as Player, this, item))
                         modules.removeAt(idx)
-                        clearToY(modules.sumOf { s -> s.sizeY } + item.sizeY)
+                        clearToZ(modules.sumOf { s -> s.sizeY } + item.sizeY)
                         render()
                         updateModules()
                     }
@@ -434,7 +434,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
             //아이템 설정
             gui.setItem(
                 3, 1, ItemBuilder
-                    .from(engine.supportFuel.toMaterial())
+                    .from(engine.supportFuel)
                     //연료 잔량(name)
                     .name(
                         Component.text(
@@ -451,7 +451,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     //연료 최대량(lore)
                     .lore(
                         listOf(
-                            Component.text("(${fuelHeight}${engine.supportFuel.getUnit()})").color(
+                            Component.text("(${fuelHeight})").color(
                                 TextColor.color(255, 255, 255)
                             ).decoration(TextDecoration.ITALIC, false),
                             Component.text(
@@ -460,7 +460,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                         p.getLang(),
                                         "rocket.maxfuelheight"
                                     )
-                                } : ${engine.maxFuelHeight}${engine.supportFuel.getUnit()}"
+                                } : ${engine.maxFuelHeight}"
                             ).color(
                                 TextColor.color(255, 255, 255)
                             ).decoration(TextDecoration.ITALIC, false)
@@ -503,7 +503,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.leftclick"
                     )
-                } : 1${engine.supportFuel.getUnit()}"
+                } : 1"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
                 "${
@@ -511,7 +511,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.rightclick"
                     )
-                } : 10${engine.supportFuel.getUnit()}"
+                } : 10"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
                 "${
@@ -519,12 +519,12 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.shiftclick"
                     )
-                } : 64${engine.supportFuel.getUnit()}"
+                } : 64"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
 
             // 호환 연료 lore
             fuelInputItemLore += Component.text("${I18n.getString(p.getLang(), "rocket.compatiblefuel")} : ")
-                .append(Component.translatable(engine.supportFuel.toMaterial().translationKey()))
+                .append(Component.translatable(engine.supportFuel.translationKey()))
                 .color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItem.lore(fuelInputItemLore.toList())
 
@@ -537,9 +537,9 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     //연료 최대량 초과 체크
                     if (engine.maxFuelHeight >= fuelHeight + use) {
                         //인벤토리 잔량 체크
-                        if (inv.contains(ItemStack(engine.supportFuel.toMaterial()), use)) {
+                        if (inv.contains(ItemStack(engine.supportFuel), use)) {
                             //사용
-                            inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), use))
+                            inv.removeItem(ItemStack(engine.supportFuel, use))
                             fuelHeight += use
                             Instance.server.pluginManager.callEvent(
                                 RocketFuelChargeEvent(
@@ -655,7 +655,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 )
 
                 //주변 블록 삭제
-                clearToY(height)
+                clearToZ(height)
 
                 //Falling block 발사 사용 여부 따라 사용
                 if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
@@ -723,19 +723,19 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         gui.open(p)
     }
 
-    fun deleteRocket(){
+    private fun deleteRocket(){
         //블럭 청소
-        clearToY(modules.sumOf { s -> s.sizeY })
+        clearToZ(modules.sumOf { s -> s.sizeY })
 
         //삭제
         this.isValid = false
         RocketManager.rockets.removeIf {r -> !r.isValid}
     }
 
-    private fun clearToY(y: Int){
+    private fun clearToZ(toZ: Int){
         for (x in -3..3) {
             for (y in -3..3) {
-                for (z in 0..y) {
+                for (z in 0..toZ) {
                     val resetLocation = installedLocation.clone()
                     resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
                     val checkLocation = installedLocation.clone()

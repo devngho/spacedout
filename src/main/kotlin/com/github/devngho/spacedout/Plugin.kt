@@ -12,13 +12,18 @@ package com.github.devngho.spacedout
 
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.*
+import com.github.devngho.spacedout.config.I18n.getLang
+import com.github.devngho.spacedout.config.PlayerData.config
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.PlanetManager
 import com.github.devngho.spacedout.rocket.*
+import com.github.devngho.spacedout.util.ComponentUtil.clear
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
+import dev.jorel.commandapi.arguments.ArgumentSuggestions
+import dev.jorel.commandapi.arguments.BooleanArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor

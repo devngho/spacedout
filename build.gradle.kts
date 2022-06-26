@@ -26,7 +26,7 @@ dependencies {
     compileOnly(kotlin("reflect"))
 
     compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
-    compileOnly("dev.jorel.CommandAPI:commandapi-core:8.4.0")
+    compileOnly("dev.jorel:commandapi-core:8.4.1")
 }
 
 java {
