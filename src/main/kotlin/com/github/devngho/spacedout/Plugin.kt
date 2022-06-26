@@ -46,36 +46,28 @@ class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
 
-        //jar 분해해 리소스 해체
-        val jarFile = File("plugins/spacedout.jar")
-        if (!jarFile.exists()) {
-            logger.warning("spacedout plugin jar file name must be \"spacedout.jar\"")
-            server.pluginManager.disablePlugin(this)
-            return
-        }else{
-            //리소스 뜯기
-            val jar = JarFile(jarFile)
-            if (!dataFolder.exists()){
-                dataFolder.mkdir()
-                val enumEntries: Enumeration<*> = jar.entries()
-                while (enumEntries.hasMoreElements()) {
-                    val file = enumEntries.nextElement() as JarEntry
-                    val f = File(dataFolder.absolutePath + File.separator + file.name)
-                    if (file.isDirectory && file.name.contains("resource")) {
-                        f.mkdir()
-                        continue
-                    }else if(file.name.contains("resource")) {
-                        val `is`: InputStream = jar.getInputStream(file)
-                        val fos = FileOutputStream(f)
-                        while (`is`.available() > 0) {
-                            fos.write(`is`.read())
-                        }
-                        fos.close()
-                        `is`.close()
+        //리소스 뜯기
+        val jar = JarFile(this.file.absoluteFile)
+        if (!dataFolder.exists()) {
+            dataFolder.mkdir()
+            val enumEntries: Enumeration<*> = jar.entries()
+            while (enumEntries.hasMoreElements()) {
+                val file = enumEntries.nextElement() as JarEntry
+                val f = File(dataFolder.absolutePath + File.separator + file.name)
+                if (file.isDirectory && file.name.contains("resource")) {
+                    f.mkdir()
+                    continue
+                } else if (file.name.contains("resource")) {
+                    val ins: InputStream = jar.getInputStream(file)
+                    val fos = FileOutputStream(f)
+                    while (ins.available() > 0) {
+                        fos.write(ins.read())
                     }
+                    fos.close()
+                    ins.close()
                 }
-                jar.close()
             }
+            jar.close()
         }
 
         //수많은 Load
@@ -87,7 +79,7 @@ class Plugin : JavaPlugin() {
         PlanetManager.generateWorlds()
         RocketData.loadAll()
 
-        server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
+        server.scheduler.scheduleSyncRepeatingTask(this, { RocketManager.tick() }, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
         val rocketInstallerRecipe = ShapedRecipe(NamespacedKey(this, "rocketinstaller"), rocketInstaller)
         rocketInstallerRecipe.shape("sis")
@@ -107,16 +99,16 @@ class Plugin : JavaPlugin() {
         CommandAPICommand("spacedout")
             .withPermission(CommandPermission.OP)
             .withSubcommand(CommandAPICommand("rocket")
-                    .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray() }).executesPlayer(
-                            PlayerCommandExecutor { sender, args ->
-                                val engine = ModuleManager.modules.find { it.id== args[0] && it.moduleType == ModuleType.ENGINE && it is Engine }
-                                if (engine != null) {
-                                    val rocketDevice = RocketManager.createRocketWithName(engine.name, sender.location.toBlockLocation())
-                                    rocketDevice.render()
-                                }
-                            }
-                        )
-                    )
+                .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray() }).executesPlayer(
+                    PlayerCommandExecutor { sender, args ->
+                        val engine = ModuleManager.modules.find { it.id== args[0] && it.moduleType == ModuleType.ENGINE && it is Engine }
+                        if (engine != null) {
+                            val rocketDevice = RocketManager.createRocketWithName(engine.name, sender.location.toBlockLocation())
+                            rocketDevice.render()
+                        }
+                    }
+                )
+                )
             )
             .withSubcommand(CommandAPICommand("planet")
                 .withSubcommand(CommandAPICommand("teleport").withArguments(StringArgument("planet").includeSuggestions { PlanetManager.planets.map { it.first.codeName }.toTypedArray() }).executesPlayer(
@@ -145,7 +137,7 @@ class Plugin : JavaPlugin() {
                             I18n.loadAll()
                             sender.sendMessage(Component.text("Spacedout Plugin Config reloaded!").color(TextColor.color(0, 255, 0)))
                         }))
-                    )
+                )
                 .withSubcommand(CommandAPICommand("save")
                     .executes(CommandExecutor { sender, _ ->
                         Config.saveConfigs()

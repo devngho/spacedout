@@ -14,6 +14,7 @@ import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.config.I18n
 import com.github.devngho.spacedout.config.getLang
 import com.github.devngho.spacedout.event.RocketCreateEvent
+import com.github.devngho.spacedout.event.RocketPrepareCreateEvent
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
@@ -48,7 +49,7 @@ internal fun onUseRocketInstaller(event: PlayerInteractEvent){
             9,
             ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(event.player.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
                 .asGuiItem { engineSelectorGui.next() })
-        ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.forEach {
+        ModuleManager.modules.filterIsInstance<Engine>().forEach {
             val moduleItem = ItemBuilder.from(it.graphicMaterial).name(
                 Component.text(it.name).decoration(TextDecoration.ITALIC, false).color(
                     TextColor.color(255, 255, 255)
@@ -77,13 +78,16 @@ internal fun onUseRocketInstaller(event: PlayerInteractEvent){
             moduleLore += Component.text("from. ${it.addedAddon.name}").color(TextColor.color(127, 127, 127))
             moduleItem.lore(moduleLore.toList())
             engineSelectorGui.addItem(moduleItem.asGuiItem { e ->
-                if (it.buildRequires.all { a -> event.player.inventory.contains(ItemStack(a.first, a.second)) }) {
+                val ev = RocketPrepareCreateEvent(event.player, it, event.clickedBlock!!.location.clone())
+                Instance.server.pluginManager.callEvent(ev)
+
+                if (it.buildRequires.all { a -> event.player.inventory.contains(ItemStack(a.first, a.second)) } && !ev.isCancelled) {
                     it.buildRequires.forEach { i ->
                         event.player.inventory.remove(ItemStack(i.first, i.second))
                     }
                     val loc = event.clickedBlock!!.location.clone()
                     loc.y += 1
-                    val rocket = RocketManager.createRocketWithInstaller(it as Engine, loc)
+                    val rocket = RocketManager.createRocketWithInstaller(it, loc)
                     rocket.render()
                     Instance.server.pluginManager.callEvent(RocketCreateEvent(e.whoClicked as Player, rocket))
                     engineSelectorGui.close(e.whoClicked)

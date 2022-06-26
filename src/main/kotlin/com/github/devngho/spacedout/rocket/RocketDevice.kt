@@ -22,15 +22,16 @@ import com.github.devngho.spacedout.event.RocketModuleAddEvent
 import com.github.devngho.spacedout.event.RocketModuleRemoveEvent
 import com.github.devngho.spacedout.planet.Planet
 import com.github.devngho.spacedout.planet.PlanetManager
+import com.github.devngho.spacedout.planet.PlanetManager.asPlanet
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
-import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -75,7 +76,78 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
     /**
      * 로켓이 유효한지 여부입니다.
      */
-    var isVaild = true
+    var isValid = true
+
+    /**
+     * 엔진을 가지고 있는지 여부입니다.
+     */
+    val hasEngine: Boolean
+        get() = modules.any { it.moduleType == ModuleType.ENGINE }
+
+    /**
+     * 노즈콘을 가지고 있는지 여부입니다.
+     */
+    val hasNosecone: Boolean
+        get() = modules.any { it.moduleType == ModuleType.NOSECONE }
+
+    /**
+     * 조종 모듈을 가지고 있는지 여부입니다.
+     */
+    val hasControlModule: Boolean
+        get() = modules.any { it is ControlModule }
+
+    /**
+     * 편도 연료가 충분한지 여부입니다.
+     */
+    val hasFuel: Boolean
+        get() {
+            return if (reachPlanet != null) {
+                abs((installedLocation.world.asPlanet()?.pos ?: 0.0) - (this.reachPlanet?.pos ?: 0.0)) <= (fuelHeight * engine.fuelDistanceRatio)
+            }else {
+                false
+            }
+        }
+
+    /**
+     * 목적지 행성을 가지고 있는지 여부입니다.
+     */
+    val hasReachPlanet: Boolean
+        get() = reachPlanet != null
+
+    /**
+     * 모든 조종 모듈에 탑승해 있는지 여부입니다.
+     */
+    val isControlModuleRode: Boolean
+        get() = modules.filterIsInstance<ControlModule>().all { it.ridedPlayer != null }
+
+    /**
+     * 탑승한 모든 플레이어가 온라인인지 여부입니다.
+     */
+    val isControlModuleRodeOnline: Boolean
+        get() {
+            return if (isControlModuleRode){
+                modules.filterIsInstance<ControlModule>().all { Bukkit.getOfflinePlayer(it.ridedPlayer!!).isOnline }
+            }else{
+                false
+            }
+        }
+
+    /**
+     * 탑승한 모든 플레이어가 방호구를 충분히 착용하고 있는지 여부입니다.
+     */
+    val isControlModuleRodeEquipment: Boolean
+        get() {
+            return if (isControlModuleRode){
+                modules.filterIsInstance<ControlModule>()
+                    .map { Instance.server.getOfflinePlayer(it.ridedPlayer!!) }
+                    .map {
+                        EquipmentManager.getPlayerEquipments(it)
+                    }
+                    .all { reachPlanet!!.needEquipments.all { c -> it.map { m -> m.value.id }.contains(c.id) } }
+            }else{
+                false
+            }
+        }
 
     init {
         //로켓 위치를 블럭 위치로 변환
@@ -119,9 +191,9 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
 
         // GUI 생성
         val gui = Gui.gui()
-                .title(Component.text(I18n.getString(p.getLang(), "rocket.name")).decoration(TextDecoration.ITALIC, false))
-                .rows(3)
-                .create()
+            .title(Component.text(I18n.getString(p.getLang(), "rocket.name")).decoration(TextDecoration.ITALIC, false))
+            .rows(3)
+            .create()
         gui.setDefaultClickAction { event ->
             event.isCancelled = true
         }
@@ -135,8 +207,8 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
 
             //맨 왼쪽 로켓 정보를 보여주는 초록 색유리판 생성
             gui.setItem(1, 1, ItemBuilder.from(Material.GREEN_STAINED_GLASS_PANE)
-                    .name(Component.text("${I18n.getString(p.getLang(), "module.name")} (${I18n.getString(p.getLang(), "module.allheight")} $height )")
-                            .decoration(TextDecoration.ITALIC, false)).asGuiItem())
+                .name(Component.text("${I18n.getString(p.getLang(), "module.name")} (${I18n.getString(p.getLang(), "module.allheight")} $height )")
+                    .decoration(TextDecoration.ITALIC, false)).asGuiItem())
 
             //모듈별 렌더
             modules.forEachIndexed { idx, item ->
@@ -151,7 +223,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
 
                 //아이템 배치
                 gui.setItem(1, idx + 2, ItemBuilder.from(item.graphicMaterial).name(Component.text(I18n.getString(p.getLang(), item.name)).decoration(TextDecoration.ITALIC, false)).lore(
-                        moduleItemLore.toList()
+                    moduleItemLore.toList()
                 ).asGuiItem {
                     // 이벤트
 
@@ -168,19 +240,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         }
                         Instance.server.pluginManager.callEvent(RocketModuleRemoveEvent(it.whoClicked as Player, this, item))
                         modules.removeAt(idx)
-                        for (x in -3..3) {
-                            for (y in -3..3) {
-                                for (z in 0..modules.sumOf { s -> s.sizeY } + item.sizeY) {
-                                    val resetLocation = installedLocation.clone()
-                                    resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
-                                    val checkLocation = installedLocation.clone()
-                                    checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                                    if (installedLocation.distance(checkLocation) <= 3) {
-                                        resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
-                                    }
-                                }
-                            }
-                        }
+                        clearToY(modules.sumOf { s -> s.sizeY } + item.sizeY)
                         render()
                         updateModules()
                     }
@@ -197,29 +257,29 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         moduleAdder.setAction { ev ->
             //모듈 추가 GUI
             val moduleAdderGui = Gui.scrolling(ScrollType.HORIZONTAL)
-                    .title(Component.text(I18n.getString(p.getLang(), "module.addmodulepick")).decoration(TextDecoration.ITALIC, false))
-                    .rows(1)
-                    .pageSize(7)
-                    .create()
+                .title(Component.text(I18n.getString(p.getLang(), "module.addmodulepick")).decoration(TextDecoration.ITALIC, false))
+                .rows(1)
+                .pageSize(7)
+                .create()
 
             //앞뒤 버튼
             moduleAdderGui.setItem(
-                    1,
-                    1,
-                    ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.prov")).decoration(TextDecoration.ITALIC, false))
-                            .asGuiItem { moduleAdderGui.previous() })
+                1,
+                1,
+                ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.prov")).decoration(TextDecoration.ITALIC, false))
+                    .asGuiItem { moduleAdderGui.previous() })
             moduleAdderGui.setItem(
-                    1,
-                    9,
-                    ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
-                            .asGuiItem { moduleAdderGui.next() })
+                1,
+                9,
+                ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
+                    .asGuiItem { moduleAdderGui.next() })
 
             //등록된 모듈 목록
             ModuleManager.modules.forEach {
                 //아이템 생성
 
                 val moduleItem = ItemBuilder.from(it.graphicMaterial).name(Component.text(I18n.getString(p.getLang(), it.name)).decoration(TextDecoration.ITALIC, false).color(
-                        TextColor.color(255, 255, 255)))
+                    TextColor.color(255, 255, 255)))
 
                 //Lore 생성
                 val moduleLore = mutableListOf<Component>()
@@ -277,39 +337,39 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
 
         //목적지 행성 버튼
         val planetSetting =
-                ItemBuilder
-                        .from(reachPlanet?.graphicMaterial ?: Material.GREEN_STAINED_GLASS_PANE)
-                        .name(Component.text(I18n.getString(p.getLang(), "planet.name"))
-                                .decoration(TextDecoration.ITALIC, false))
-                        .asGuiItem()
+            ItemBuilder
+                .from(reachPlanet?.graphicMaterial ?: Material.GREEN_STAINED_GLASS_PANE)
+                .name(Component.text(I18n.getString(p.getLang(), "planet.name"))
+                    .decoration(TextDecoration.ITALIC, false))
+                .asGuiItem()
 
         //이벤트
         planetSetting.setAction { e ->
             //행성 리스트 UI 렌더
             val planetGui = Gui.scrolling(ScrollType.HORIZONTAL)
-                    .title(Component.text(I18n.getString(p.getLang(), "rocket.reachplanet")).decoration(TextDecoration.ITALIC, false))
-                    .rows(1)
-                    .pageSize(7)
-                    .create()
+                .title(Component.text(I18n.getString(p.getLang(), "rocket.reachplanet")).decoration(TextDecoration.ITALIC, false))
+                .rows(1)
+                .pageSize(7)
+                .create()
 
             planetGui.setItem(
-                    1,
-                    1,
-                    ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.prov")).decoration(TextDecoration.ITALIC, false))
-                            .asGuiItem { planetGui.previous() })
+                1,
+                1,
+                ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.prov")).decoration(TextDecoration.ITALIC, false))
+                    .asGuiItem { planetGui.previous() })
             planetGui.setItem(
-                    1,
-                    9,
-                    ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
-                            .asGuiItem { planetGui.next() })
+                1,
+                9,
+                ItemBuilder.from(Material.PAPER).name(Component.text(I18n.getString(p.getLang(), "text.next")).decoration(TextDecoration.ITALIC, false))
+                    .asGuiItem { planetGui.next() })
 
             PlanetManager.planets.forEach {
                 // 행성 리스트 렌더
                 val planetItem = ItemBuilder
-                        .from(it.first.graphicMaterial)
-                        .name(Component.text(I18n.getString(p.getLang(), it.first.name))
-                                .decoration(TextDecoration.ITALIC, false)
-                                .color(TextColor.color(255, 255, 255)))
+                    .from(it.first.graphicMaterial)
+                    .name(Component.text(I18n.getString(p.getLang(), it.first.name))
+                        .decoration(TextDecoration.ITALIC, false)
+                        .color(TextColor.color(255, 255, 255)))
 
                 //행성 Lore 렌더
                 val planetLore = mutableListOf<Component>()
@@ -318,16 +378,17 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     planetLore += Component.text(I18n.getString(p.getLang(), "planet.hereplanet")).decoration(TextDecoration.ITALIC, false)
                 }
                 val distance = abs(
-                        (PlanetManager.planets.find { p -> p.second?.name == installedLocation.world.name }?.first?.pos
-                                ?: 0.0) - (it.first.pos)
+                    (PlanetManager.planets.find { p -> p.second?.name == installedLocation.world.name }?.first?.pos
+                        ?: 0.0) - (it.first.pos)
                 )
                 planetLore += Component.text(I18n.getString(p.getLang(), it.first.description)).decoration(TextDecoration.ITALIC, false).color(
-                        TextColor.color(255, 255, 255))
+                    TextColor.color(255, 255, 255))
+
                 //거리
                 planetLore += Component.text("${I18n.getString(p.getLang(), "planet.distance")} : ${distance}AU").decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 255, 255))
                 //필요 방호구
                 planetLore += Component.text("${I18n.getString(p.getLang(), "equipment.needequipment")} : ${it.first.needEquipments.joinToString(postfix = ", ") { j -> I18n.getString(p.getLang(), j.name) }}").decoration(TextDecoration.ITALIC, false).color(
-                        TextColor.color(255, 255, 255))
+                    TextColor.color(255, 255, 255))
                 //도착 가능/불가능
                 planetLore += if (distance <= fuelHeight * engine.fuelDistanceRatio) {
                     Component.text(I18n.getString(p.getLang(), "rocket.canreach")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(29, 219, 22))
@@ -372,126 +433,126 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         fun updateFuel() {
             //아이템 설정
             gui.setItem(
-                    3, 1, ItemBuilder
+                3, 1, ItemBuilder
                     .from(engine.supportFuel.toMaterial())
                     //연료 잔량(name)
                     .name(
-                            Component.text(
-                                    "${
-                                        I18n.getString(
-                                                p.getLang(),
-                                                "rocket.fuelheight"
-                                        )
-                                    } : ${round(fuelHeight.toDouble() / engine.maxFuelHeight.toDouble() * 1000) / 10}%"
-                            ).decoration(TextDecoration.ITALIC, false).color(
-                                    TextColor.color(255, 255, 255)
-                            )
+                        Component.text(
+                            "${
+                                I18n.getString(
+                                    p.getLang(),
+                                    "rocket.fuelheight"
+                                )
+                            } : ${round(fuelHeight.toDouble() / engine.maxFuelHeight.toDouble() * 1000) / 10}%"
+                        ).decoration(TextDecoration.ITALIC, false).color(
+                            TextColor.color(255, 255, 255)
+                        )
                     )
                     //연료 최대량(lore)
                     .lore(
-                            listOf(
-                                    Component.text("(${fuelHeight}${engine.supportFuel.getUnit()})").color(
-                                            TextColor.color(255, 255, 255)
-                                    ).decoration(TextDecoration.ITALIC, false),
-                                    Component.text(
-                                            "${
-                                                I18n.getString(
-                                                        p.getLang(),
-                                                        "rocket.maxfuelheight"
-                                                )
-                                            } : ${engine.maxFuelHeight}${engine.supportFuel.getUnit()}"
-                                    ).color(
-                                            TextColor.color(255, 255, 255)
-                                    ).decoration(TextDecoration.ITALIC, false)
-                            )
+                        listOf(
+                            Component.text("(${fuelHeight}${engine.supportFuel.getUnit()})").color(
+                                TextColor.color(255, 255, 255)
+                            ).decoration(TextDecoration.ITALIC, false),
+                            Component.text(
+                                "${
+                                    I18n.getString(
+                                        p.getLang(),
+                                        "rocket.maxfuelheight"
+                                    )
+                                } : ${engine.maxFuelHeight}${engine.supportFuel.getUnit()}"
+                            ).color(
+                                TextColor.color(255, 255, 255)
+                            ).decoration(TextDecoration.ITALIC, false)
+                        )
                     ).asGuiItem()
             )
 
             // 아이템 설정2
             gui.setItem(
-                    3, 2, ItemBuilder.from(
+                3, 2, ItemBuilder.from(
                     if (fuelHeight == 0) {
                         Material.RED_STAINED_GLASS_PANE
                     } else {
                         Material.GREEN_STAINED_GLASS_PANE
                     }
-            ).name(
+                ).name(
                     Component.text(
-                            "${
-                                I18n.getString(
-                                        p.getLang(),
-                                        "rocket.reachdistance"
-                                )
-                            } : ${fuelHeight * engine.fuelDistanceRatio}AU"
+                        "${
+                            I18n.getString(
+                                p.getLang(),
+                                "rocket.reachdistance"
+                            )
+                        } : ${fuelHeight * engine.fuelDistanceRatio}AU"
                     ).decoration(TextDecoration.ITALIC, false).color(
-                            TextColor.color(255, 255, 255)
+                        TextColor.color(255, 255, 255)
                     )
-            ).asGuiItem()
+                ).asGuiItem()
             )
 
             //연료 투입 아이템 생성
             val fuelInputItem = ItemBuilder.from(Material.WHITE_STAINED_GLASS_PANE).name(
-                    Component.text(I18n.getString(p.getLang(), "rocket.addfuel")).decoration(TextDecoration.ITALIC, false)
+                Component.text(I18n.getString(p.getLang(), "rocket.addfuel")).decoration(TextDecoration.ITALIC, false)
             )
 
             //투입 아이템 lore
             val fuelInputItemLore = mutableListOf<Component>()
             fuelInputItemLore += Component.text(
-                    "${
-                        I18n.getString(
-                                p.getLang(),
-                                "text.leftclick"
-                        )
-                    } : 1${engine.supportFuel.getUnit()}"
+                "${
+                    I18n.getString(
+                        p.getLang(),
+                        "text.leftclick"
+                    )
+                } : 1${engine.supportFuel.getUnit()}"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
-                    "${
-                        I18n.getString(
-                                p.getLang(),
-                                "text.rightclick"
-                        )
-                    } : 10${engine.supportFuel.getUnit()}"
+                "${
+                    I18n.getString(
+                        p.getLang(),
+                        "text.rightclick"
+                    )
+                } : 10${engine.supportFuel.getUnit()}"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
-                    "${
-                        I18n.getString(
-                                p.getLang(),
-                                "text.shiftclick"
-                        )
-                    } : 64${engine.supportFuel.getUnit()}"
+                "${
+                    I18n.getString(
+                        p.getLang(),
+                        "text.shiftclick"
+                    )
+                } : 64${engine.supportFuel.getUnit()}"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
 
             // 호환 연료 lore
             fuelInputItemLore += Component.text("${I18n.getString(p.getLang(), "rocket.compatiblefuel")} : ")
-                    .append(Component.translatable(engine.supportFuel.toMaterial().translationKey()))
-                    .color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
+                .append(Component.translatable(engine.supportFuel.toMaterial().translationKey()))
+                .color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItem.lore(fuelInputItemLore.toList())
 
             //아이템 설정
             gui.setItem(3, 2, fuelInputItem.asGuiItem {
 
-                //use개만큼 연료 충전
+                //use 파라미터만큼 연료 충전
                 fun chargeFuel(use: Int) {
                     val inv = it.whoClicked.inventory
                     //연료 최대량 초과 체크
                     if (engine.maxFuelHeight >= fuelHeight + use) {
-                        //인벤 잔량 체크
+                        //인벤토리 잔량 체크
                         if (inv.contains(ItemStack(engine.supportFuel.toMaterial()), use)) {
                             //사용
                             inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), use))
                             fuelHeight += use
                             Instance.server.pluginManager.callEvent(
-                                    RocketFuelChargeEvent(
-                                            it.whoClicked as Player,
-                                            this,
-                                            use
-                                    )
+                                RocketFuelChargeEvent(
+                                    it.whoClicked as Player,
+                                    this,
+                                    use
+                                )
                             )
                         } else {
                             //필요 메시지
                             it.whoClicked.sendMessage(
-                                    Component.text(I18n.getString(p.getLang(), "rocket.itemneed"))
-                                            .color(TextColor.color(201, 0, 0))
+                                Component.text(I18n.getString(p.getLang(), "rocket.itemneed"))
+                                    .color(TextColor.color(201, 0, 0))
                             )
                         }
                     }
@@ -521,272 +582,169 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
 
         //로켓 발사 아이템 생성
         val rocketLaunchItem = ItemBuilder
-                .from(Material.FIREWORK_ROCKET)
-                .name(
-                        Component
-                                .text(I18n.getString(p.getLang(), "rocket.launch"))
-                                .decoration(TextDecoration.ITALIC, false))
+            .from(Material.FIREWORK_ROCKET)
+            .name(
+                Component
+                    .text(I18n.getString(p.getLang(), "rocket.launch"))
+                    .decoration(TextDecoration.ITALIC, false))
 
         //발사 아이템 lore 생성
         val rocketLaunchItemLore = mutableListOf<Component>()
-        //엔진 유무
-        rocketLaunchItemLore += if (modules.find { f -> f.moduleType == ModuleType.ENGINE } != null) {
-            Component.text(I18n.getString(p.getLang(), "rocket.engine")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.engine")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
+
+        val conditions = listOf(
+            Pair("rocket.engine", hasEngine),
+            Pair("rocket.fuel", hasFuel),
+            Pair("rocket.controlmodule", hasControlModule),
+            Pair("rocket.nosecone", hasNosecone),
+            Pair("rocket.reachplanetpicked", hasReachPlanet),
+            Pair("rocket.selectrider", isControlModuleRode),
+            Pair("rocket.selectrideronline", isControlModuleRodeOnline),
+            Pair("rocket.canequipment", isControlModuleRodeEquipment)
+        )
+
+        // 로켓 조건 체크
+
+        conditions.forEach {
+            rocketLaunchItemLore += Component.text(I18n.getString(p.getLang(),
+                it.first
+            )).color(
+                if (it.second) TextColor.color(0, 255, 0) else TextColor.color(255, 0, 0)
+            ).decoration(TextDecoration.ITALIC, false)
         }
-        //조정 모듈 유무
-        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null) {
-            Component.text(I18n.getString(p.getLang(), "modules.controlmodule")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-        } else {
-            Component.text(I18n.getString(p.getLang(), "modules.controlmodule")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //노즈콘 유무
-        rocketLaunchItemLore += if (modules.find { f -> f.moduleType == ModuleType.NOSECONE } != null) {
-            Component.text(I18n.getString(p.getLang(), "rocket.nosecone")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.nosecone")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //연료(편도) 충분 여부
-        rocketLaunchItemLore += if (abs(
-                        ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
-                                ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
-                ) <= (fuelHeight * engine.fuelDistanceRatio)
-        ) {
-            Component.text(I18n.getString(p.getLang(), "rocket.fuel")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.fuel")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //목적지 선택 여부
-        rocketLaunchItemLore += if (this.reachPlanet != null) {
-            Component.text(I18n.getString(p.getLang(), "rocket.reachplanetpicked")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.reachplanetpicked")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //조정 모듈 탑승자 선택 여부
-        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null) {
-            if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { (it as ControlModule).ridedPlayer != null }) {
-                Component.text(I18n.getString(p.getLang(), "rocket.selectrider")).color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-            } else {
-                Component.text(I18n.getString(p.getLang(), "rocket.selectrider")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-            }
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.selectrider")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //조정 모듈 탑승자 온라인 여부
-        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null) {
-            if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { (it as ControlModule).ridedPlayer != null }) {
-                if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { Instance.server.getOfflinePlayer((it as ControlModule).ridedPlayer!!).isOnline }) {
-                    Component.text(I18n.getString(p.getLang(), "rocket.selectrideronline"))
-                            .color(TextColor.color(0, 255, 0)).decoration(TextDecoration.ITALIC, false)
-                } else {
-                    Component.text(I18n.getString(p.getLang(), "rocket.selectrideronline")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-                }
-            } else {
-                Component.text(I18n.getString(p.getLang(), "rocket.selectrideronline")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-            }
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.selectrideronline")).color(TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)
-        }
-        //조정 모듈 탑승자 방호복 여부
-        rocketLaunchItemLore += if (modules.find { f -> f.id == "controlmodule" } != null && reachPlanet != null) {
-            if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { (it as ControlModule).ridedPlayer != null }) {
-                if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { Instance.server.getOfflinePlayer((it as ControlModule).ridedPlayer!!).isOnline }) {
-                    if (
-                            modules.filter { f -> f.id == "controlmodule" && f is ControlModule }
-                                    .map { Instance.server.getOfflinePlayer((it as ControlModule).ridedPlayer!!).player!! }
-                                    .map {
-                                        EquipmentManager.getPlayerEquipments(it)
-                                    }
-                                    .all { reachPlanet!!.needEquipments.all { c -> it.map { m -> m.value.id }.contains(c.id) } }
-                    ) {
-                        Component.text(I18n.getString(p.getLang(), "rocket.canequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(0, 255, 0))
-                    } else {
-                        Component.text(I18n.getString(p.getLang(), "rocket.cantequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 0, 0))
-                    }
-                } else {
-                    Component.text(I18n.getString(p.getLang(), "rocket.cantequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 0, 0))
-                }
-            } else {
-                Component.text(I18n.getString(p.getLang(), "rocket.cantequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 0, 0))
-            }
-        } else {
-            Component.text(I18n.getString(p.getLang(), "rocket.cantequipment")).decoration(TextDecoration.ITALIC, false).color(TextColor.color(255, 0, 0))
-        }
+
         rocketLaunchItem.lore(rocketLaunchItemLore.toList())
 
         //발사 아이템 배치
         gui.setItem(3, 4, rocketLaunchItem.asGuiItem {
             gui.close(it.whoClicked)
+            //발사 가능 조건 체크
+            if (conditions.all { c -> c.second } && !isLaunching) {
+                //거리 미리 계산
+                val distance = abs(
+                    ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
+                        ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
+                )
 
-            //발사
-            if (modules.find { f -> f.moduleType == ModuleType.ENGINE } != null && modules.find { f -> f.id == "controlmodule" } != null && modules.find { f -> f.moduleType == ModuleType.NOSECONE } != null && (abs(
-                            ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
-                                    ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
-                    ) <= (fuelHeight * engine.fuelDistanceRatio)) && this.reachPlanet != null && modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.all { a -> (a as ControlModule).ridedPlayer != null } && !isLaunching) {
-                //발사 가능 조건 체크
-                if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }
-                                .all { a -> Instance.server.getOfflinePlayer((a as ControlModule).ridedPlayer!!).isOnline }) {
-                    if (modules.filter { f -> f.id == "controlmodule" && f is ControlModule }
-                                    .map { m -> Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!! }
-                                    .map { m -> EquipmentManager.getPlayerEquipments(m) }
-                                    .all {
-                                        reachPlanet!!.needEquipments.all { c ->
-                                            it.map { m -> m.value.id }.contains(c.id)
-                                        }
-                                    }) {
-                        //발사!
-                        
-                        //거리 미리 계산
-                        val distance = abs(
-                                ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
-                                        ?: 0.0) - (this.reachPlanet?.pos ?: 0.0))
-                        )
-                        
-                        //플레이어 발사 알림
-                        modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
-                            val player = Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
-                            player.showTitle(
-                                    Title.title(
-                                            Component.text(I18n.getString(p.getLang(), "rocket.launch")),
-                                            Component.text(
-                                                    I18n.getString(p.getLang(), "rocket.reachaftersecond")
-                                                            .replace("{name}", I18n.getString(p.getLang(), reachPlanet!!.name)).replace(
-                                                                    "{second}",
-                                                                    (distance / engine.speedDistanceRatio / 20).toString()
-                                                            )
-                                            )
+                //플레이어 발사 알림
+                modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
+                    val player = Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
+                    player.showTitle(
+                        Title.title(
+                            Component.text(I18n.getString(p.getLang(), "rocket.launch")),
+                            Component.text(
+                                I18n.getString(p.getLang(), "rocket.reachaftersecond")
+                                    .replace("{name}", I18n.getString(p.getLang(), reachPlanet!!.name)).replace(
+                                        "{second}",
+                                        (distance / engine.speedDistanceRatio / 20).toString()
                                     )
                             )
-                        }
-
-                        //발사 시작!
-                        isLaunching = true
-                        
-                        //이벤트 호출
-                        Instance.server.pluginManager.callEvent(
-                                RocketLaunchEvent(
-                                        this,
-                                        PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first,
-                                        reachPlanet!!
-                                )
                         )
-                        
-                        //주변 블록 삭제
-                        for (x in -3..3) {
-                            for (y in -3..3) {
-                                for (z in 0..height) {
-                                    val resetLocation = installedLocation.clone()
-                                    resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
-                                    val checkLocation = installedLocation.clone()
-                                    checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                                    if (installedLocation.distance(checkLocation) <= 3) {
-                                        resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
-                                    }
-                                }
-                            }
-                        }
-                        
-                        //Falling block 발사 사용 여부 따라 사용
-                        if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
-                            LaunchingRocket(modules, installedLocation.clone(), false)
-                        }
-
-                        // 반 왔을 때 tp
-                        Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
-                            val world =
-                                    PlanetManager.planets.find { f -> f.first.codeName == this.reachPlanet?.codeName }?.second!!
-                            this.fuelHeight -= ceil(
-                                    abs(
-                                            ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
-                                                    ?: 0.0) - (this.reachPlanet?.pos ?: 0.0)) / engine.fuelDistanceRatio
-                                    )
-                            ).toInt()
-                            
-                            //로켓 이동
-                            this.installedLocation.world = world
-                            this.installedLocation.y = world.getHighestBlockYAt(
-                                    this.installedLocation.x.toInt(),
-                                    this.installedLocation.z.toInt()
-                            ).toDouble() + 1
-                            
-                            modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
-                                val player =
-                                        Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
-                                player.teleport(
-                                        Location(
-                                                world, player.location.x, world.getHighestBlockYAt(
-                                                player.location.x.toInt(),
-                                                player.location.z.toInt()
-                                        ).toDouble() + 1, player.location.z
-                                        )
-                                )
-                            }
-
-                            //도착했을 때 랜딩
-                            Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
-                                render()
-                                isLaunching = false
-                            }, (distance / engine.speedDistanceRatio).toLong())
-
-                            //착륙 Falling launch
-                            if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
-                                LaunchingRocket(modules, installedLocation.clone(), true)
-                            }
-                        }, (distance / engine.speedDistanceRatio).toLong())
-                    } else {
-                        it.whoClicked.sendMessage(
-                                Component.text(I18n.getString(p.getLang(), "module.installfailed"))
-                                        .color(TextColor.color(255, 0, 0))
-                        )
-                    }
-                } else {
-                    it.whoClicked.sendMessage(
-                            Component.text(I18n.getString(p.getLang(), "module.installfailed"))
-                                    .color(TextColor.color(255, 0, 0))
                     )
                 }
-            } else {
-                it.whoClicked.sendMessage(
-                        Component.text(I18n.getString(p.getLang(), "module.installfailed"))
-                                .color(TextColor.color(255, 0, 0))
+
+                //발사 시작!
+                isLaunching = true
+
+                //이벤트 호출
+                Instance.server.pluginManager.callEvent(
+                    RocketLaunchEvent(
+                        this,
+                        PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first,
+                        reachPlanet!!
+                    )
                 )
+
+                //주변 블록 삭제
+                clearToY(height)
+
+                //Falling block 발사 사용 여부 따라 사용
+                if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
+                    LaunchingRocket(modules, installedLocation.clone(), false)
+                }
+
+                // 반 왔을 때 tp
+                Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                    val world =
+                        PlanetManager.planets.find { f -> f.first.codeName == this.reachPlanet?.codeName }?.second!!
+                    this.fuelHeight -= ceil(
+                        abs(
+                            ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
+                                ?: 0.0) - (this.reachPlanet?.pos ?: 0.0)) / engine.fuelDistanceRatio
+                        )
+                    ).toInt()
+
+                    //로켓 이동
+                    this.installedLocation.world = world
+                    this.installedLocation.y = world.getHighestBlockYAt(
+                        this.installedLocation.x.toInt(),
+                        this.installedLocation.z.toInt()
+                    ).toDouble() + 1
+
+                    modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
+                        val player =
+                            Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
+                        player.teleport(
+                            Location(
+                                world, player.location.x, world.getHighestBlockYAt(
+                                    player.location.x.toInt(),
+                                    player.location.z.toInt()
+                                ).toDouble() + 1, player.location.z
+                            )
+                        )
+                    }
+
+                    //도착했을 때 랜딩
+                    Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                        render()
+                        isLaunching = false
+                    }, (distance / engine.speedDistanceRatio).toLong())
+
+                    //착륙 Falling launch
+                    if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
+                        LaunchingRocket(modules, installedLocation.clone(), true)
+                    }
+                }, (distance / engine.speedDistanceRatio).toLong())
             }
         })
 
         //로켓 삭제 아이템 배치
         gui.setItem(3, 5, ItemBuilder.from(Material.RED_CONCRETE).name(Component.text(I18n.getString(p.getLang(), "rocket.removerocket")).color(
-                TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)).asGuiItem {
-            
-            //블럭 청소
-            for (x in -3..3) {
-                for (y in -3..3) {
-                    for (z in 0..modules.sumOf { s -> s.sizeY }) {
-                        val resetLocation = installedLocation.clone()
-                        resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
-                        val checkLocation = installedLocation.clone()
-                        checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                        if (installedLocation.distance(checkLocation) <= 3) {
-                            resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
-                        }
-                    }
-                }
-            }
-            
-            //아이템 반환
+            TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)).asGuiItem {
             modules.forEach { m ->
                 m.buildRequires.forEach { r ->
                     it.whoClicked.location.world.dropItem(it.whoClicked.location, ItemStack(r.first, r.second))
                 }
             }
-
-            //삭제
-            this.isVaild = false
-            RocketManager.rockets.removeIf {r -> !r.isVaild}
+            this.deleteRocket()
             gui.close(it.whoClicked)
         })
-        
+
         //플레이어에게 보여주기
         gui.open(p)
+    }
+
+    fun deleteRocket(){
+        //블럭 청소
+        clearToY(modules.sumOf { s -> s.sizeY })
+
+        //삭제
+        this.isValid = false
+        RocketManager.rockets.removeIf {r -> !r.isValid}
+    }
+
+    private fun clearToY(y: Int){
+        for (x in -3..3) {
+            for (y in -3..3) {
+                for (z in 0..y) {
+                    val resetLocation = installedLocation.clone()
+                    resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
+                    val checkLocation = installedLocation.clone()
+                    checkLocation.add(x.toDouble(), 0.0, y.toDouble())
+                    if (installedLocation.distance(checkLocation) <= 3) {
+                        resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
+                    }
+                }
+            }
+        }
     }
 }

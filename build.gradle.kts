@@ -1,8 +1,3 @@
-import java.net.URL
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.zip.ZipFile
-
 plugins {
     kotlin("jvm") version "1.6.10"
     id("xyz.jpenilla.run-paper") version "1.0.6"
@@ -12,7 +7,7 @@ plugins {
 }
 
 group = "com.github.devngho"
-version = "v1.0-PR0"
+version = "v1.0.0"
 
 repositories {
     mavenCentral()
@@ -25,11 +20,11 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
-    implementation("dev.triumphteam:triumph-gui:3.1.1")
-    compileOnly("dev.jorel.CommandAPI:commandapi-core:6.5.3")
-    implementation("xyz.xenondevs:particle:1.7")
-    implementation(files("lib/nplug.jar"))
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
+    implementation("dev.triumphteam:triumph-gui:3.1.2")
+    compileOnly("dev.jorel.CommandAPI:commandapi-core:8.4.0")
+    implementation("xyz.xenondevs:particle:1.7.1")
+    implementation("com.github.devngho:nplug:v0.1-alpha25")
 }
 
 java {
@@ -53,48 +48,16 @@ tasks {
         finalizedBy(shadowJar)
     }
     runServer {
-        minecraftVersion("1.18.1")
-    }
-    task("downloadPlug") {
-        val folder = file(project.projectDir.absolutePath + File.separator + "lib")
-        if (folder.exists()) {
-            for (file in folder.listFiles()!!) {
-                if (!file.isDirectory) {
-                    file.delete()
-                }
-            }
-        }
-        if (!folder.exists()) folder.mkdir()
-        val unzipFolder = file(folder.absolutePath + File.separator + "nplug")
-        if (!unzipFolder.exists()) unzipFolder.mkdir()
-        downloadFile(uri("https://nightly.link/devngho/nplug/workflows/gradle/master/Package.zip").toURL(), folder.absolutePath + File.separator + "nplug.zip")
-        unZip(folder.absolutePath + File.separator + "nplug.zip", unzipFolder.absolutePath)
-        unzipFolder.listFiles()!![0].copyTo(file(folder.absolutePath + File.separator + "nplug.jar"))
-    }
-}
-
-fun downloadFile(url: URL, fileName: String) {
-    url.openStream().use { Files.copy(it, Paths.get(fileName)) }
-}
-
-fun unZip(zipFilePath: String, targetPath: String) {
-    ZipFile(zipFilePath).use { zip ->
-        zip.entries().asSequence().forEach { entry ->
-            zip.getInputStream(entry).use { input ->
-                File(targetPath, entry.name).outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
-        }
+        minecraftVersion("1.19")
     }
 }
 
 bukkit {
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     main = "com.github.devngho.spacedout.Plugin"
-    apiVersion = "1.18"
+    apiVersion = "1.19"
     authors = listOf("ngho")
     libraries = listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
     depend = listOf("CommandAPI")
-    version = "v1.0-PR0"
+    version = "v1.0"
 }
