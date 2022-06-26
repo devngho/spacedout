@@ -37,26 +37,28 @@ object RocketManager {
 
     @Suppress("UNCHECKED_CAST")
     fun loadRocketDevice(conf: FileConfiguration){
-        val engine = ModuleManager.modules.find { it.id == conf.getString("engine", "coalengine") && it.moduleType == ModuleType.ENGINE && it is Engine }?.newInstance() as Engine
-        if (conf.getMapList("moduledatas").isNotEmpty()) {
-            engine.loadModuleValue(conf.getMapList("moduledatas")[0] as MutableMap<Any, Any>)
-        }
-        val device = RocketDevice(engine,
-            conf.getLocation("location") ?: Location(Instance.server.worlds[0], 0.toDouble() , 0.toDouble(), 0.toDouble()),
-            UUID.fromString(conf.getString("uuid")) ?: UUID.randomUUID())
-        device.reachPlanet = PlanetManager.planets.find { it.first.codeName == conf.getString("reachplanet") }?.first
-        val moduleData = conf.getMapList("moduledatas")
-        device.modules.clear()
-        conf.getStringList("modules").forEachIndexed { i, it ->
-            val module = ModuleManager.modules.find { f -> f.id == it }
-            if (module != null){
-                val instance = module.newInstance()
-                instance.loadModuleValue(moduleData[i] as MutableMap<Any, Any>)
-                device.modules += instance
+        if (conf.getBoolean("vaild", true)){
+            val engine = ModuleManager.modules.find { it.id == conf.getString("engine", "coalengine") && it.moduleType == ModuleType.ENGINE && it is Engine }?.newInstance() as Engine
+            if (conf.getMapList("moduledatas").isNotEmpty()) {
+                engine.loadModuleValue(conf.getMapList("moduledatas")[0] as MutableMap<Any, Any>)
             }
+            val device = RocketDevice(engine,
+                conf.getLocation("location") ?: Location(Instance.server.worlds[0], 0.toDouble() , 0.toDouble(), 0.toDouble()),
+                UUID.fromString(conf.getString("uuid")) ?: UUID.randomUUID())
+            device.reachPlanet = PlanetManager.planets.find { it.first.codeName == conf.getString("reachplanet") }?.first
+            val moduleData = conf.getMapList("moduledatas")
+            device.modules.clear()
+            conf.getStringList("modules").forEachIndexed { i, it ->
+                val module = ModuleManager.modules.find { f -> f.id == it }
+                if (module != null){
+                    val instance = module.newInstance()
+                    instance.loadModuleValue(moduleData[i] as MutableMap<Any, Any>)
+                    device.modules += instance
+                }
+            }
+            device.fuelHeight = conf.getInt("fuelheight", 0)
+            rockets.add(device)
         }
-        device.fuelHeight = conf.getInt("fuelheight", 0)
-        rockets.add(device)
     }
     fun saveRocketDevice(){
         val map = rockets.map {
