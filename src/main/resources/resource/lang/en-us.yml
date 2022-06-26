@@ -31,6 +31,7 @@ modules:
   lavaengine: Lava engine
   standardnosecone: Standard nosecone
   gunpowderengine: Gunpowder engine
+  tntengine: TNT Engine
 rocket:
   name: Rocket
   reachplanet: Destination planet
@@ -78,3 +79,5 @@ text:
   leftclick: Left Click
   rightclick: Right Click
   shiftclick: SHIFT + Left Click
+  enablefalling: Enabled the falling block rocket launch motion. High performance is required!
+  disablefalling: Disabled the falling block rocket launch motion.

@@ -14,7 +14,6 @@ import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.OxygenMask
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -73,12 +72,10 @@ class Mars : Planet{
         configurationSection.set("graphicmaterial", "SAND")
     }
 
-    override fun loadPlanetConfig(configurationSection: ConfigurationSection) : Boolean {
-        if (!configurationSection.contains("position")) return true
+    override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         pos = configurationSection.getDouble("position", 1.5)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "SAND")!!.uppercase(), false) ?: Material.SAND
         worldBorderSize = configurationSection.getDouble("worldbordersize", 256.0)
-        return false
     }
 
     override val codeName: String = "mars"

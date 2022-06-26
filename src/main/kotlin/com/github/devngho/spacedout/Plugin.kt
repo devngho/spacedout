@@ -10,15 +10,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 package com.github.devngho.spacedout
 
+import com.github.devngho.nplug.impl.nms.NMSVersion
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.*
+import com.github.devngho.spacedout.config.I18n.getLang
+import com.github.devngho.spacedout.config.PlayerData.config
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.PlanetManager
 import com.github.devngho.spacedout.rocket.*
+import com.github.devngho.spacedout.util.ComponentUtil.clear
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
+import dev.jorel.commandapi.arguments.ArgumentSuggestions
+import dev.jorel.commandapi.arguments.BooleanArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
@@ -91,6 +97,7 @@ class Plugin : JavaPlugin() {
         EquipmentManager.equipments.forEach {
             server.addRecipe(it.recipe)
         }
+        server.logger.info("spacedout running on ${NMSVersion.nmsVersion}")
     }
 
     override fun onLoad() {
@@ -101,7 +108,9 @@ class Plugin : JavaPlugin() {
         CommandAPICommand("spacedout")
             .withPermission(CommandPermission.OP)
             .withSubcommand(CommandAPICommand("rocket")
-                    .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine").includeSuggestions { ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray() }).executesPlayer(
+                    .withSubcommand(CommandAPICommand("create").withArguments(StringArgument("engine")
+                        .includeSuggestions(ArgumentSuggestions.strings(*ModuleManager.modules.filter { it.moduleType == ModuleType.ENGINE && it is Engine }.map { it.id }.toTypedArray())))
+                        .executesPlayer(
                             PlayerCommandExecutor { sender, args ->
                                 val engine = ModuleManager.modules.find { it.id== args[0] && it.moduleType == ModuleType.ENGINE && it is Engine }
                                 if (engine != null) {
@@ -113,7 +122,8 @@ class Plugin : JavaPlugin() {
                     )
             )
             .withSubcommand(CommandAPICommand("planet")
-                .withSubcommand(CommandAPICommand("teleport").withArguments(StringArgument("planet").includeSuggestions { PlanetManager.planets.map { it.first.codeName }.toTypedArray() }).executesPlayer(
+                .withSubcommand(CommandAPICommand("teleport").withArguments(StringArgument("planet").includeSuggestions(
+                    ArgumentSuggestions.strings(*PlanetManager.planets.map { it.first.codeName }.toTypedArray()))).executesPlayer(
                     PlayerCommandExecutor {sender, args ->
                         sender.teleport(Location(PlanetManager.planets.find { it.first.codeName == args[0]}?.second!!, 0.toDouble(), 100.toDouble(), 0.toDouble()))
                     }
@@ -136,6 +146,7 @@ class Plugin : JavaPlugin() {
                     .withSubcommand(CommandAPICommand("all")
                         .executes(CommandExecutor { sender, _ ->
                             Config.loadConfigs()
+                            Config.loadPlanetModuleConfigs()
                             I18n.loadAll()
                             sender.sendMessage(Component.text("Spacedout Plugin Config reloaded!").color(TextColor.color(0, 255, 0)))
                         }))
@@ -155,7 +166,7 @@ class Plugin : JavaPlugin() {
                     })
                 )
                 .withSubcommand(CommandAPICommand("give")
-                    .withArguments(StringArgument("equip").includeSuggestions { EquipmentManager.equipments.map { it.id }.toTypedArray() })
+                    .withArguments(StringArgument("equip").includeSuggestions (ArgumentSuggestions.strings(*EquipmentManager.equipments.map { it.id }.toTypedArray())))
                     .executesPlayer(PlayerCommandExecutor { sender, args ->
                         val found = EquipmentManager.equipments.find { it.id == args[0] }
                         if (found != null){
@@ -174,12 +185,12 @@ class Plugin : JavaPlugin() {
                         addonGui.setItem(
                             1,
                             1,
-                            ItemBuilder.from(Material.PAPER).name(Component.text("이전").decoration(TextDecoration.ITALIC, false))
+                            ItemBuilder.from(Material.PAPER).name(I18n.getComponent(sender.getLang(), "text.prov").decoration(TextDecoration.ITALIC, false))
                                 .asGuiItem { addonGui.previous() })
                         addonGui.setItem(
                             1,
                             9,
-                            ItemBuilder.from(Material.PAPER).name(Component.text("다음").decoration(TextDecoration.ITALIC, false))
+                            ItemBuilder.from(Material.PAPER).name(I18n.getComponent(sender.getLang(), "text.next").decoration(TextDecoration.ITALIC, false))
                                 .asGuiItem { addonGui.next() })
                         AddonManager.addons.forEach {
                             addonGui.addItem(ItemBuilder.from(it.graphicMaterial).name(Component.text(it.name).color(
@@ -188,6 +199,18 @@ class Plugin : JavaPlugin() {
                         addonGui.open(sender)
                     }))
             )
+            .register()
+        CommandAPICommand("falling")
+            .withArguments(BooleanArgument("boolean"))
+            .executesPlayer(PlayerCommandExecutor { sender, args ->
+                if (args[0] == true){
+                    sender.player?.config?.set("use_falling", true)
+                    sender.sendMessage(I18n.getComponent(sender.getLang(), "text.enablefalling").clear)
+                }else if(args[0] == false){
+                    sender.player?.config?.set("use_falling", false)
+                    sender.sendMessage(I18n.getComponent(sender.getLang(), "text.disablefalling").clear)
+                }
+            })
             .register()
         CommandAPICommand("equip")
             .withAliases("eq")

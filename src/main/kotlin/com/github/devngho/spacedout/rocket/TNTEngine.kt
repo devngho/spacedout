@@ -23,57 +23,51 @@ import net.kyori.adventure.text.Component
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.io.File
 
-class LavaEngine(override var height: Int = 8, override var maxFuelHeight: Int = 20, override var maxHeight: Int = 40, override var graphicMaterial: Material = Material.LAVA_BUCKET, override var fuelDistanceRatio: Double = 0.3,  override var speedDistanceRatio: Double = 0.01) : Engine {
-    override val supportFuel = Material.LAVA_BUCKET
-    override val id: String = "lavaengine"
+class TNTEngine(override var height: Int = 15, override var maxFuelHeight: Int = 50, override var maxHeight: Int = 50, override var graphicMaterial: Material = Material.TNT, override var fuelDistanceRatio: Double = 0.5, override var speedDistanceRatio: Double = 0.025) : Engine {
+    override val id: String = "tntengine"
+    override var supportFuel = Material.TNT
     override var name: String = "modules.${id}"
-    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 10), Pair(Material.IRON_INGOT, 30), Pair(Material.OBSIDIAN, 10))
-    override val sizeY: Int = 5
+    override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 50), Pair(Material.OBSIDIAN, 30), Pair(Material.IRON_BLOCK, 20), Pair(Material.DIAMOND, 5))
+    override val sizeY: Int = 7
     override val moduleType: ModuleType = ModuleType.ENGINE
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
     override val structure: Structure = StructureLoader.loadFromFile(File(Instance.plugin.dataFolder.absolutePath + File.separator + "resource/modules" + File.separator + "$id.json"))
     override val useStructure: Boolean = true
-    override val protectionRange: Int = 3
-
-    override fun render(rocket: RocketDevice, position: Location) {
-        for (x in -2..2) {
-            for (z in -2..2) {
-                position.clone().add(x.toDouble(), 0.0, z.toDouble()).block.type = Material.IRON_BLOCK
-            }
-        }
-        for (x in -1..1) {
-            for (z in -1..1) {
-                position.clone().add(x.toDouble(), 1.0, z.toDouble()).block.type = Material.RED_CONCRETE
-            }
-        }
-        for (x in -1..1) {
-            for (z in -1..1) {
-                position.clone().add(x.toDouble(), 2.0, z.toDouble()).block.type = Material.IRON_BLOCK
-            }
-        }
-    }
-
-    override fun newInstance(): Module {
-        return LavaEngine(height, maxFuelHeight, maxHeight, graphicMaterial, fuelDistanceRatio, speedDistanceRatio)
-    }
-
+    override val protectionRange: Int = 5
     override fun initModuleConfig(configurationSection: ConfigurationSection) {
-        configurationSection.set("height", 8)
-        configurationSection.set("maxfuelheight", 20)
-        configurationSection.set("maxheight", 40)
-        configurationSection.set("graphicmaterial", "LAVA_BUCKET")
-        configurationSection.set("fueldistanceratio", 0.3)
-        configurationSection.set("speeddistanceratio", 0.01)
+        configurationSection.set("height", 15)
+        configurationSection.set("maxfuelheight", 50)
+        configurationSection.set("maxheight", 50)
+        configurationSection.set("graphicmaterial", "TNT")
+        configurationSection.set("fueldistanceratio", 0.5)
+        configurationSection.set("speeddistanceratio", 0.025)
     }
 
     override fun loadModuleConfig(configurationSection: ConfigurationSection) {
-        height = configurationSection.getInt("height", 8)
-        maxFuelHeight = configurationSection.getInt("maxfuelheight", 20)
-        maxHeight = configurationSection.getInt("maxheight", 20)
-        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "LAVA_BUCKET")!!.uppercase(), false) ?: Material.LAVA_BUCKET
-        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.3)
-        speedDistanceRatio = configurationSection.getDouble("speeddistanceratio", 0.01)
+        height = configurationSection.getInt("height", 15)
+        maxFuelHeight = configurationSection.getInt("maxfuelheight", 50)
+        maxHeight = configurationSection.getInt("maxheight", 50)
+        graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "TNT")!!.uppercase(), false) ?: Material.TNT
+        fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.5)
+        speedDistanceRatio = configurationSection.getDouble("speeddistanceratio", 0.025)
+    }
+
+    override fun render(rocket: RocketDevice, position: Location) {
+        /*for (x in -2..2) {
+            for (z in -2..2) {
+                position.clone().add(x.toDouble(), 0.0, z.toDouble()).block.type = Material.STONE
+            }
+        }
+        for (x in -1..1) {
+            for (z in -1..1) {
+                position.clone().add(x.toDouble(), 1.0, z.toDouble()).block.type = Material.STONE
+            }
+        }*/
+    }
+
+    override fun newInstance(): Module {
+        return TNTEngine(height, maxFuelHeight, maxHeight, graphicMaterial, fuelDistanceRatio, speedDistanceRatio)
     }
 
     override fun loadModuleValue(map: MutableMap<Any, Any>) {}

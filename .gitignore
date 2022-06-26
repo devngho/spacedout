@@ -76,3 +76,4 @@ outTmp/
 /kotlin-native/dist
 kotlin-ide/
 lib/
+run/

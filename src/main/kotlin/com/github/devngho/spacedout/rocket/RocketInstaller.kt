@@ -12,7 +12,7 @@ package com.github.devngho.spacedout.rocket
 
 import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.config.I18n
-import com.github.devngho.spacedout.config.getLang
+import com.github.devngho.spacedout.config.I18n.getLang
 import com.github.devngho.spacedout.event.RocketCreateEvent
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
@@ -26,7 +26,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
-val rocketInstaller: ItemStack = ItemStack(Material.DIAMOND).apply { itemMeta = itemMeta.apply {
+val rocketInstaller: ItemStack = ItemStack(Material.IRON_NUGGET).apply { itemMeta = itemMeta.apply {
     displayName(Component.text("로켓 설치 장치").decoration(TextDecoration.ITALIC, false))
     lore(listOf(Component.text("블럭에 우클릭해 로켓을 설치하세요.").color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)))
 } }

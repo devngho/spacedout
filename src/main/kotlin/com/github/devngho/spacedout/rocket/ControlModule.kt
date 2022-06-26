@@ -17,7 +17,6 @@ import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.I18n
 import com.github.devngho.spacedout.config.StructureLoader
 import com.github.devngho.spacedout.util.Pair
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -28,14 +27,12 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import java.io.File
 import java.util.*
 
-class ControlModule : Module {
+class ControlModule(override var height: Int = 10, override var graphicMaterial: Material = Material.CALCITE) : Module {
     var ridedPlayer: UUID? = null
     override val id: String = "controlmodule"
     override var name: String = "modules.${id}"
     override val sizeY: Int = 6
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.STONE, 30), Pair(Material.IRON_INGOT, 5))
-    override var height: Int = 10
-    override var graphicMaterial: Material = Material.CALCITE
     override val moduleType: ModuleType = ModuleType.NORMAL
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
@@ -54,18 +51,16 @@ class ControlModule : Module {
     }
 
     override fun newInstance(): Module {
-        return ControlModule()
+        return ControlModule(height, graphicMaterial)
     }
     override fun initModuleConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("height", 10)
         configurationSection.set("graphicmaterial", "CALCITE")
     }
 
-    override fun loadModuleConfig(configurationSection: ConfigurationSection): Boolean {
-        if (!configurationSection.contains("height")) return true
+    override fun loadModuleConfig(configurationSection: ConfigurationSection) {
         height = configurationSection.getInt("height", 10)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "CALCITE")!!.uppercase(), false) ?: Material.CALCITE
-        return false
     }
     override fun loadModuleValue(map: MutableMap<Any, Any>) {
         if (map.containsKey("ridedplayer")) {

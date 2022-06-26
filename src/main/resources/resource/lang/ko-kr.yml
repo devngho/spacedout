@@ -31,6 +31,7 @@ modules:
   lavaengine: 용암 엔진
   standardnosecone: 일반 노즈콘
   gunpowderengine: 화약 엔진
+  tntengine: TNT 엔진
 rocket:
   name: 로켓
   reachplanet: 목적 행성
@@ -78,3 +79,5 @@ text:
   leftclick: 좌클릭
   rightclick: 우클릭
   shiftclick: 웅크리기 + 클릭
+  enablefalling: 폴링 블록 로켓 발사 모션을 사용합니다. 많은 렉을 유발합니다!
+  disablefalling: 폴링 블록 로켓 발사 모션을 사용하지 않습니다.

@@ -38,7 +38,7 @@ object RocketManager {
     @Suppress("UNCHECKED_CAST")
     fun loadRocketDevice(conf: FileConfiguration){
         val engine = ModuleManager.modules.find { it.id == conf.getString("engine", "coalengine") && it.moduleType == ModuleType.ENGINE && it is Engine }?.newInstance() as Engine
-        if (conf.getMapList("moduledatas").count() > 0) {
+        if (conf.getMapList("moduledatas").isNotEmpty()) {
             engine.loadModuleValue(conf.getMapList("moduledatas")[0] as MutableMap<Any, Any>)
         }
         val device = RocketDevice(engine,

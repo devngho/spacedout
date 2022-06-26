@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.github.devngho.spacedout.equipment
 
 import com.github.devngho.spacedout.config.I18n
+import com.github.devngho.spacedout.config.I18n.getLang
 import com.github.devngho.spacedout.config.PlayerData
-import com.github.devngho.spacedout.config.getLang
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.GuiType
 import dev.triumphteam.gui.guis.Gui

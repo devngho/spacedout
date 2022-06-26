@@ -15,34 +15,26 @@ import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.StructureLoader
-import com.github.devngho.spacedout.fuel.Fuel
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import com.github.devngho.spacedout.util.Pair
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import net.kyori.adventure.text.Component
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.io.File
 
-class GunpowderEngine : Engine {
+class GunpowderEngine(override var height: Int = 15, override var maxFuelHeight: Int = 100, override var maxHeight: Int = 35, override var graphicMaterial: Material = Material.GUNPOWDER, override var fuelDistanceRatio: Double = 0.12, override var speedDistanceRatio: Double = 0.015) : Engine {
     override val id: String = "gunpowderengine"
-    override var height: Int = 15
-    override var maxFuelHeight: Int = 100
-    override var maxHeight: Int = 35
-    override var supportFuel: Fuel = Fuel.GUNPOWDER
+    override var supportFuel = Material.GUNPOWDER
     override var name: String = "modules.${id}"
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.COBBLESTONE, 50), Pair(Material.STONE, 50), Pair(Material.OBSIDIAN, 30), Pair(Material.IRON_BLOCK, 5))
-    override var graphicMaterial: Material = Material.GUNPOWDER
     override val sizeY: Int = 7
-    override var fuelDistanceRatio: Double = 0.12
     override val moduleType: ModuleType = ModuleType.ENGINE
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon
     override val structure: Structure = StructureLoader.loadFromFile(File(Instance.plugin.dataFolder.absolutePath + File.separator + "resource/modules" + File.separator + "$id.json"))
     override val useStructure: Boolean = true
     override val protectionRange: Int = 4
-    override var speedDistanceRatio: Double = 0.015
     override fun initModuleConfig(configurationSection: ConfigurationSection) {
         configurationSection.set("height", 15)
         configurationSection.set("maxfuelheight", 100)
@@ -52,15 +44,13 @@ class GunpowderEngine : Engine {
         configurationSection.set("speeddistanceratio", 0.015)
     }
 
-    override fun loadModuleConfig(configurationSection: ConfigurationSection): Boolean {
-        if (!configurationSection.contains("height")) return true
+    override fun loadModuleConfig(configurationSection: ConfigurationSection) {
         height = configurationSection.getInt("height", 15)
         maxFuelHeight = configurationSection.getInt("maxfuelheight", 100)
         maxHeight = configurationSection.getInt("maxheight", 35)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "GUNPOWDER")!!.uppercase(), false) ?: Material.GUNPOWDER
         fuelDistanceRatio = configurationSection.getDouble("fueldistanceratio", 0.1)
         speedDistanceRatio = configurationSection.getDouble("speeddistanceratio", 0.015)
-        return false
     }
 
     override fun render(rocket: RocketDevice, position: Location) {
@@ -77,7 +67,7 @@ class GunpowderEngine : Engine {
     }
 
     override fun newInstance(): Module {
-        return GunpowderEngine()
+        return GunpowderEngine(height, maxFuelHeight, maxHeight, graphicMaterial, fuelDistanceRatio, speedDistanceRatio)
     }
 
     override fun loadModuleValue(map: MutableMap<Any, Any>) {}

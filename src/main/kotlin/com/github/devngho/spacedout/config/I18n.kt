@@ -31,9 +31,9 @@ object I18n {
         }
     }
     @Suppress("UNUSED")
-    fun appendComponent(text: Component, lang: String, key: String): Component{
+    fun Component.appendComponent(lang: String, key: String): Component{
         return if(langCache.containsKey(lang)){
-            text.append(Component.text(
+            this.append(Component.text(
                 langCache[lang]!!.getString(
                     key, langCache[
                             Config.configConfiguration.getString("server.defaultlang")
@@ -41,7 +41,7 @@ object I18n {
                 )!!)
             )
         }else{
-            text.append(Component.text(langCache[
+            this.append(Component.text(langCache[
                     Config.configConfiguration.getString("server.defaultlang")
             ]!!.getString(key, "")!!))
         }
@@ -79,8 +79,7 @@ object I18n {
             it.value.save(File(folder, File.separator + it.key + ".yml"))
         }
     }
-}
-
-fun Player.getLang(): String{
-    return "${this.locale().language}-${this.locale().country}".lowercase()
+    fun Player.getLang(): String{
+        return "${this.locale().language}-${this.locale().country}".lowercase()
+    }
 }

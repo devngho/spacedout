@@ -4,7 +4,6 @@
     <root id="archive" name="spacedout.jar">
       <element id="module-output" name="spacedout.main" />
       <element id="dir-copy" path="$PROJECT_DIR$/build/resources/main" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/dev.triumphteam/triumph-gui/3.0.1/f2d5f4a558b69de2b4d4144be4cbb787e3eccb51/triumph-gui-3.0.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

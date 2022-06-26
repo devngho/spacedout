@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 package com.github.devngho.spacedout.rocket
 
-import com.github.devngho.spacedout.fuel.Fuel
+import org.bukkit.Material
 
 interface Engine : Module, Cloneable{
     /**
@@ -24,9 +24,9 @@ interface Engine : Module, Cloneable{
     val maxHeight: Int
 
     /**
-     * 로켓이 호환하는 연료 목록입니다.
+     * 로켓이 호환하는 연료입니다.
      */
-    val supportFuel: Fuel
+    val supportFuel: Material
 
     /**
      * 로켓의 연비입니다.

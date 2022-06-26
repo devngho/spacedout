@@ -89,9 +89,8 @@ interface Module {
     /**
      * 모듈의 설정 값을 읽어들입니다.
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
-     * @return 초기화해야 할 때 true를 반환하세요.
      */
-    fun loadModuleConfig(configurationSection: ConfigurationSection): Boolean
+    fun loadModuleConfig(configurationSection: ConfigurationSection)
 
     /**
      * 모듈이 저장 후 로딩될 때 Map 를 읽어 로딩합니다.

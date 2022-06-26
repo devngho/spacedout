@@ -13,8 +13,8 @@ package com.github.devngho.spacedout.rocket
 import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.config.Config
 import com.github.devngho.spacedout.config.I18n
+import com.github.devngho.spacedout.config.I18n.getLang
 import com.github.devngho.spacedout.config.StructureLoader
-import com.github.devngho.spacedout.config.getLang
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.event.RocketFuelChargeEvent
 import com.github.devngho.spacedout.event.RocketLaunchEvent
@@ -22,6 +22,8 @@ import com.github.devngho.spacedout.event.RocketModuleAddEvent
 import com.github.devngho.spacedout.event.RocketModuleRemoveEvent
 import com.github.devngho.spacedout.planet.Planet
 import com.github.devngho.spacedout.planet.PlanetManager
+import com.github.devngho.spacedout.util.ItemUtil.hasMaterialCount
+import com.github.devngho.spacedout.util.ItemUtil.useMaterialCount
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
@@ -37,9 +39,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.*
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.round
+import kotlin.math.*
 
 
 class RocketDevice(val engine: Engine, val installedLocation: Location, val uniqueId: UUID){
@@ -50,7 +50,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
     var fuelHeight: Int = 0
     var modules: MutableList<Module> = mutableListOf(engine)
     var reachPlanet: Planet? = null
-    var isLaunching = false
+    private var isLaunching = false
 
     init {
         val blockLocation = installedLocation.toBlockLocation()
@@ -88,7 +88,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         }
     }
 
-    fun renderGui(p: Player){
+    private fun renderGui(p: Player){
         val gui = Gui.gui()
             .title(Component.text(I18n.getString(p.getLang(), "rocket.name")).decoration(TextDecoration.ITALIC, false))
             .rows(3)
@@ -123,14 +123,15 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         }
                         Instance.server.pluginManager.callEvent(RocketModuleRemoveEvent(it.whoClicked as Player, this, item))
                         modules.removeAt(idx)
-                        for (x in -3..3){
-                            for (y in -3..3){
+                        val protectionRange = modules.maxOf { m -> m.protectionRange }
+                        for (x in -protectionRange..protectionRange){
+                            for (y in -protectionRange..protectionRange){
                                 for (z in 0..modules.sumOf { s -> s.sizeY } + item.sizeY){
                                     val resetLocation = installedLocation.clone()
                                     resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
                                     val checkLocation = installedLocation.clone()
                                     checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                                    if (installedLocation.distance(checkLocation) <= 3){
+                                    if (installedLocation.distance(checkLocation) <= protectionRange){
                                         resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
                                     }
                                 }
@@ -170,7 +171,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 }else{
                     Component.text(I18n.getString(p.getLang(), "module.cantinstall")).color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
                 }
-                moduleLore += if (it.buildRequires.all { a -> ev.whoClicked.inventory.contains(ItemStack(a.first, a.second)) }){
+                moduleLore += if (it.buildRequires.all { a -> ev.whoClicked.hasMaterialCount(a.first, a.second) }){
                     Component.text(I18n.getString(p.getLang(), "module.haveresource")).color(TextColor.color(29, 219, 22)).decoration(TextDecoration.ITALIC, false)
                 }else{
                     Component.text(I18n.getString(p.getLang(), "module.nohaveresource")).color(TextColor.color(201, 0, 0)).decoration(TextDecoration.ITALIC, false)
@@ -184,11 +185,11 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                 moduleLore += Component.text("from. ${it.addedAddon.name}").color(TextColor.color(127, 127, 127))
                 moduleItem.lore(moduleLore.toList())
                 moduleAdderGui.addItem(moduleItem.asGuiItem { e ->
-                    if (ModuleManager.isPlaceable(engine, modules, it) && it.buildRequires.all { a -> ev.whoClicked.inventory.contains(ItemStack(a.first, a.second)) }) {
+                    if (ModuleManager.isPlaceable(engine, modules, it) && it.buildRequires.all { a -> ev.whoClicked.hasMaterialCount(a.first, a.second) }) {
                         this.modules.add(it.newInstance())
                         this.render()
                         it.buildRequires.forEach { i ->
-                            ev.whoClicked.inventory.remove(ItemStack(i.first, i.second))
+                            ev.whoClicked.useMaterialCount(i.first, i.second)
                         }
                         Instance.server.pluginManager.callEvent(RocketModuleAddEvent(e.whoClicked as Player, this, it.newInstance()))
                         moduleAdderGui.close(e.whoClicked)
@@ -272,7 +273,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         gui.setItem(2, 1, planetSetting)
         fun updateFuel() {
             gui.setItem(
-                3, 1, ItemBuilder.from(engine.supportFuel.toMaterial()).name(
+                3, 1, ItemBuilder.from(engine.supportFuel).name(
                     Component.text(
                         "${
                             I18n.getString(
@@ -285,7 +286,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                     )
                 ).lore(
                     listOf(
-                        Component.text("(${fuelHeight}${engine.supportFuel.getUnit()})").color(
+                        Component.text("(${fuelHeight})").color(
                             TextColor.color(255, 255, 255)
                         ).decoration(TextDecoration.ITALIC, false),
                         Component.text(
@@ -294,7 +295,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                     p.getLang(),
                                     "rocket.maxfuelheight"
                                 )
-                            } : ${engine.maxFuelHeight}${engine.supportFuel.getUnit()}"
+                            } : ${engine.maxFuelHeight}"
                         ).color(
                             TextColor.color(255, 255, 255)
                         ).decoration(TextDecoration.ITALIC, false)
@@ -331,7 +332,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.leftclick"
                     )
-                } : 1${engine.supportFuel.getUnit()}"
+                } : 1"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
                 "${
@@ -339,7 +340,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.rightclick"
                     )
-                } : 10${engine.supportFuel.getUnit()}"
+                } : 10"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text(
                 "${
@@ -347,19 +348,18 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         p.getLang(),
                         "text.shiftclick"
                     )
-                } : 64${engine.supportFuel.getUnit()}"
+                } : 64"
             ).color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItemLore += Component.text("${I18n.getString(p.getLang(), "rocket.compatiblefuel")} : ")
-                .append(Component.translatable(engine.supportFuel.toMaterial().translationKey()))
+                .append(Component.translatable(engine.supportFuel.translationKey()))
                 .color(TextColor.color(255, 255, 255)).decoration(TextDecoration.ITALIC, false)
             fuelInputItem.lore(fuelInputItemLore.toList())
             gui.setItem(3, 2, fuelInputItem.asGuiItem {
                 when (it.click) {
                     ClickType.LEFT -> {
-                        val inv = it.whoClicked.inventory
                         if (engine.maxFuelHeight >= fuelHeight + 1) {
-                            if (inv.contains(ItemStack(engine.supportFuel.toMaterial()), 1)) {
-                                inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 1))
+                            if (it.whoClicked.hasMaterialCount(engine.supportFuel, 1)) {
+                                it.whoClicked.useMaterialCount(engine.supportFuel, 1)
                                 fuelHeight += 1
                                 Instance.server.pluginManager.callEvent(
                                     RocketFuelChargeEvent(
@@ -377,10 +377,9 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         }
                     }
                     ClickType.RIGHT -> {
-                        val inv = it.whoClicked.inventory
                         if (engine.maxFuelHeight >= fuelHeight + 10) {
-                            if (inv.contains(ItemStack(engine.supportFuel.toMaterial(), 10))) {
-                                inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 10))
+                            if (it.whoClicked.hasMaterialCount(engine.supportFuel, 10)) {
+                                it.whoClicked.useMaterialCount(engine.supportFuel, 10)
                                 fuelHeight += 10
                                 Instance.server.pluginManager.callEvent(
                                     RocketFuelChargeEvent(
@@ -406,10 +405,9 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                         }
                     }
                     ClickType.SHIFT_LEFT -> {
-                        val inv = it.whoClicked.inventory
                         if (engine.maxFuelHeight >= fuelHeight + 64) {
-                            if (inv.contains(ItemStack(engine.supportFuel.toMaterial(), 64))) {
-                                inv.removeItem(ItemStack(engine.supportFuel.toMaterial(), 64))
+                            if (it.whoClicked.hasMaterialCount(engine.supportFuel, 64)) {
+                                it.whoClicked.useMaterialCount(engine.supportFuel, 64)
                                 fuelHeight += 64
                                 Instance.server.pluginManager.callEvent(
                                     RocketFuelChargeEvent(
@@ -551,12 +549,13 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                         I18n.getString(p.getLang(), "rocket.reachaftersecond")
                                             .replace("{name}", I18n.getString(p.getLang(), reachPlanet!!.name)).replace(
                                                 "{second}",
-                                                (distance / engine.speedDistanceRatio / 20).toString()
+                                                (round(distance / engine.speedDistanceRatio / 20)).toString()
                                             )
                                     )
                                 )
                             )
                         }
+                        val reachPlanetWorld = PlanetManager.planets.find { f -> f.first.codeName == this.reachPlanet?.codeName }?.second!!
                         isLaunching = true
                         Instance.server.pluginManager.callEvent(
                             RocketLaunchEvent(
@@ -565,58 +564,103 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
                                 reachPlanet!!
                             )
                         )
-                        for (x in -3..3) {
-                            for (y in -3..3) {
+                        val protectionRange = modules.maxOf { m -> m.protectionRange }
+                        for (x in -protectionRange..protectionRange) {
+                            for (y in -protectionRange..protectionRange) {
                                 for (z in 0..modules.sumOf { s -> s.sizeY }) {
                                     val resetLocation = installedLocation.clone()
                                     resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
                                     val checkLocation = installedLocation.clone()
                                     checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                                    if (installedLocation.distance(checkLocation) <= 3) {
+                                    if (installedLocation.distance(checkLocation) <= protectionRange) {
                                         resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
                                     }
                                 }
                             }
                         }
-                        if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
-                            LaunchingRocket(modules, installedLocation.clone(), false)
-                        }
+                        var launchingRocket = LaunchingRocket(modules, installedLocation.clone(), false)
                         Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
-                            val world =
-                                PlanetManager.planets.find { f -> f.first.codeName == this.reachPlanet?.codeName }?.second!!
                             this.fuelHeight -= ceil(
                                 abs(
                                     ((PlanetManager.planets.find { pl -> pl.second?.name == installedLocation.world.name }?.first?.pos
                                         ?: 0.0) - (this.reachPlanet?.pos ?: 0.0)) / engine.fuelDistanceRatio
                                 )
                             ).toInt()
-                            this.installedLocation.world = world
-                            this.installedLocation.y = world.getHighestBlockYAt(
+                            this.installedLocation.world = reachPlanetWorld
+                            this.installedLocation.y = reachPlanetWorld.getHighestBlockYAt(
                                 this.installedLocation.x.toInt(),
                                 this.installedLocation.z.toInt()
                             ).toDouble() + 1
-                            modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
-                                val player =
-                                    Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
-                                player.teleport(
-                                    Location(
-                                        world, player.location.x, world.getHighestBlockYAt(
-                                            player.location.x.toInt(),
-                                            player.location.z.toInt()
-                                        ).toDouble() + 1, player.location.z
-                                    )
-                                )
-                            }
                             Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
                                 render()
                                 isLaunching = false
                             }, (distance / engine.speedDistanceRatio).toLong())
-                            if (Config.configConfiguration.getBoolean("rocket.usefallinglaunch", true)) {
-                                LaunchingRocket(modules, installedLocation.clone(), true)
-                            }
+                            Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                                launchingRocket = LaunchingRocket(modules, installedLocation.clone(), true)
+                            }, max((distance / engine.speedDistanceRatio).toLong() - Config.configConfiguration.getLong("rocket.fallinglaunchtick", 100), 0))
                             Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
                                 render()
                                 isLaunching = false
+                            }, (distance / engine.speedDistanceRatio).toLong())
+                        }, (distance / engine.speedDistanceRatio).toLong())
+                        var taskID: Int?
+                        taskID = Instance.server.scheduler.scheduleSyncRepeatingTask(Instance.plugin, {
+                            modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
+                                val player =
+                                    Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
+                                player.setGravity(false)
+                                player.isInvisible = true
+                                player.isInvulnerable = true
+                                val loc = launchingRocket.location.clone().apply {
+                                    x += Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                    y += modules.subList(0, modules.indexOfFirst { i -> i.id == "controlmodule" }).sumOf { s -> s.sizeY } + Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                    z += Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                }
+                                loc.direction = launchingRocket.location.toVector().apply {
+                                    y += modules.sumOf { s -> s.sizeY } / 2.0
+                                }.subtract(player.location.toVector()).normalize()
+                                player.teleport(loc)
+                            }
+                        }, 0, 1)
+                        Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                            Instance.server.scheduler.cancelTask(taskID!!)
+                            taskID = Instance.server.scheduler.scheduleSyncRepeatingTask(Instance.plugin, {
+                                modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
+                                    val player =
+                                        Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
+                                    player.setGravity(false)
+                                    player.isInvisible = true
+                                    player.isInvulnerable = true
+                                    val loc = launchingRocket.location.clone().apply {
+                                        world = reachPlanetWorld
+                                        x += Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                        y += modules.subList(0, modules.indexOfFirst { i -> i.id == "controlmodule" }).sumOf { s -> s.sizeY } + Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                        z += Config.configConfiguration.getDouble("launchviewdistance", 12.0)
+                                    }
+                                    loc.direction = launchingRocket.location.toVector().apply {
+                                        y += modules.sumOf { s -> s.sizeY } / 2.0
+                                    }.subtract(player.location.toVector()).normalize()
+                                    player.teleport(loc)
+                                }
+                            }, 0, 1)
+                            Instance.server.scheduler.scheduleSyncDelayedTask(Instance.plugin, {
+                                Instance.server.scheduler.cancelTask(taskID!!)
+                                modules.filter { f -> f.id == "controlmodule" && f is ControlModule }.forEach { m ->
+                                    val player =
+                                        Instance.server.getOfflinePlayer((m as ControlModule).ridedPlayer!!).player!!
+                                    player.setGravity(true)
+                                    player.isInvisible = false
+                                    player.isInvulnerable = false
+                                    player.teleport(
+                                        Location(
+                                            reachPlanetWorld,
+                                            installedLocation.x, reachPlanetWorld.getHighestBlockYAt(
+                                                installedLocation.x.toInt(),
+                                                installedLocation.z.toInt()
+                                            ).toDouble(), installedLocation.z
+                                        )
+                                    )
+                                }
                             }, (distance / engine.speedDistanceRatio).toLong())
                         }, (distance / engine.speedDistanceRatio).toLong())
                     } else {
@@ -640,14 +684,15 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
         })
         gui.setItem(3, 5, ItemBuilder.from(Material.RED_CONCRETE).name(Component.text(I18n.getString(p.getLang(), "rocket.removerocket")).color(
             TextColor.color(255, 0, 0)).decoration(TextDecoration.ITALIC, false)).asGuiItem {
-            for (x in -3..3){
-                for (y in -3..3){
-                    for (z in 0..modules.sumOf { s -> s.sizeY }){
+            val protectionRange = modules.maxOf { m -> m.protectionRange }
+            for (x in -protectionRange..protectionRange){
+                for (y in -protectionRange..protectionRange){
+                    for (z in 0..protectionRange){
                         val resetLocation = installedLocation.clone()
                         resetLocation.add(x.toDouble(), z.toDouble(), y.toDouble())
                         val checkLocation = installedLocation.clone()
                         checkLocation.add(x.toDouble(), 0.0, y.toDouble())
-                        if (installedLocation.distance(checkLocation) <= 3){
+                        if (installedLocation.distance(checkLocation) <= protectionRange){
                             resetLocation.world.getBlockAt(resetLocation).type = Material.AIR
                         }
                     }

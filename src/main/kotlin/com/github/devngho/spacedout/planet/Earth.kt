@@ -15,7 +15,6 @@ package com.github.devngho.spacedout.planet
 import com.github.devngho.spacedout.addon.Addon
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.configuration.ConfigurationSection
@@ -41,10 +40,8 @@ class Earth : Planet {
         configurationSection.set("graphicmaterial", "GRASS_BLOCK")
     }
 
-    override fun loadPlanetConfig(configurationSection: ConfigurationSection): Boolean {
-        if (!configurationSection.contains("position")) return true
+    override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         pos = configurationSection.getDouble("position", 1.0)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "GRASS_BLOCK")!!.uppercase(), false) ?: Material.GRASS_BLOCK
-        return false
     }
 }

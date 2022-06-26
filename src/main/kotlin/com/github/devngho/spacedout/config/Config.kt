@@ -20,62 +20,50 @@ import java.io.File
 
 object Config {
     lateinit var configConfiguration: FileConfiguration
+    private var noExists = false
     fun loadConfigs(){
         val configData =
             File(Instance.plugin.dataFolder, File.separator + "config.yml")
         configConfiguration = YamlConfiguration.loadConfiguration(configData)
         if (!configData.exists()){
+            noExists = true
             configConfiguration.createSection("planet")
-            PlanetManager.planets.forEach {
-                configConfiguration.createSection("planet.${it.first.codeName}")
-                it.first.initPlanetConfig(configConfiguration.getConfigurationSection("planet.${it.first.codeName}")!!)
-            }
-            configConfiguration.createSection("module")
-            ModuleManager.modules.forEach {
-                configConfiguration.createSection("module.${it.id}")
-                it.initModuleConfig(configConfiguration.getConfigurationSection("module.${it.id}")!!)
-            }
             configConfiguration.createSection("playerdefault")
             configConfiguration.createSection("playerdefault.equip")
             EquipmentType.values().forEach {
                 configConfiguration.set("playerdefault.equip.${it.name}", null)
             }
+            configConfiguration.set("playerdefault.use_falling", false)
             configConfiguration.createSection("planets")
             configConfiguration.set("planets.useworldborder", false)
             configConfiguration.createSection("server")
             configConfiguration.set("server.requireresourcepack", true)
             configConfiguration.set("server.defaultlang", "ko-kr")
             configConfiguration.createSection("rocket")
-            configConfiguration.set("rocket.usefallinglaunch", true)
             configConfiguration.set("rocket.fallinglaunchtick", 100)
             configConfiguration.set("rocket.interactiondistance", 4.0)
-            configConfiguration.save(configData)
+            configConfiguration.set("rocket.launchviewdistance", 12.0)
         }
     }
     fun loadPlanetModuleConfigs(){
-        val configData =
-            File(Instance.plugin.dataFolder, File.separator + "config.yml")
-        PlanetManager.planets.forEach {
-            configConfiguration.createSection("planet.${it.first.codeName}")
-            val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")
-            try {
-                it.first.loadPlanetConfig(planetConfig!!)
-            }catch (e: Exception){
-                it.first.initPlanetConfig(planetConfig!!)
+        if (noExists){
+            PlanetManager.planets.forEach {
+                configConfiguration.createSection("planet.${it.first.codeName}")
+                it.first.initPlanetConfig(configConfiguration.getConfigurationSection("planet.${it.first.codeName}")!!)
             }
+            ModuleManager.modules.forEach {
+                configConfiguration.createSection("module.${it.id}")
+                it.initModuleConfig(configConfiguration.getConfigurationSection("module.${it.id}")!!)
+            }
+        }
+        PlanetManager.planets.forEach {
+            val planetConfig = configConfiguration.getConfigurationSection("planet.${it.first.codeName}")
+            it.first.loadPlanetConfig(planetConfig!!)
         }
         ModuleManager.modules.forEach {
-            configConfiguration.createSection("module.${it.id}")
-            val moduleConfig = configConfiguration.getConfigurationSection("module.${it.id}")
-            try {
-                if (it.loadModuleConfig(moduleConfig!!)){
-                    it.initModuleConfig(moduleConfig)
-                }
-            }catch (e: Exception){
-                it.initModuleConfig(moduleConfig!!)
-            }
+            val moduleConfig = configConfiguration.getConfigurationSection("module")!!.getConfigurationSection(it.id)
+            it.loadModuleConfig(moduleConfig!!)
         }
-        configConfiguration.save(configData)
     }
     fun saveConfigs(){
         val configData =

@@ -11,8 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.github.devngho.spacedout.config
 
 import com.github.devngho.spacedout.Instance
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.entity.Player
 import java.io.File
 import java.util.*
 
@@ -43,15 +45,16 @@ object PlayerData {
         val default = Config.configConfiguration.getConfigurationSection("playerdefault")
         playerCache[uuid]!!.createSection("player.equip")
         playerCache[uuid]!!.set("player.equip", default?.get("equip"))
+        playerCache[uuid]!!.set("player.use_falling", default?.get("use_falling"))
         val userdata =
-            File(com.github.devngho.spacedout.Instance.plugin.dataFolder, File.separator + "players")
+            File(Instance.plugin.dataFolder, File.separator + "players")
         val f = File(userdata, File.separator + uuid + ".yml")
         playerCache[uuid]!!.save(f)
     }
     private fun loadPlayerData(uuid: UUID){
         if (!playerCache.containsKey(uuid)){
             val userdata =
-                File(com.github.devngho.spacedout.Instance.plugin.dataFolder, File.separator + "players")
+                File(Instance.plugin.dataFolder, File.separator + "players")
             val f = File(userdata, File.separator + uuid + ".yml")
             val playerData: FileConfiguration = YamlConfiguration.loadConfiguration(f)
             playerData.save(f)
@@ -61,9 +64,9 @@ object PlayerData {
     fun getPlayerData(uuid: UUID): FileConfiguration {
         return if (playerCache.containsKey(uuid)){
             playerCache[uuid]!!
-        }else{
+        } else{
             val userdata =
-                File(com.github.devngho.spacedout.Instance.plugin.dataFolder, File.separator + "players")
+                File(Instance.plugin.dataFolder, File.separator + "players")
             val f = File(userdata, File.separator + uuid + ".yml")
             val playerData: FileConfiguration = YamlConfiguration.loadConfiguration(f)
             playerData.save(f)
@@ -71,11 +74,17 @@ object PlayerData {
             playerData
         }
     }
+
     fun savePlayerData(){
         val userdata =
-            File(com.github.devngho.spacedout.Instance.plugin.dataFolder, File.separator + "players")
+            File(Instance.plugin.dataFolder, File.separator + "players")
         playerCache.forEach {
             it.value.save(File(userdata, File.separator + it.key + ".yml"))
         }
+    }
+
+    val Player.config : ConfigurationSection?
+    get() {
+        return getPlayerData(this.uniqueId).getConfigurationSection("player")
     }
 }

@@ -23,14 +23,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockExplodeEvent
-import org.bukkit.event.block.BlockFromToEvent
-import org.bukkit.event.block.BlockPistonEvent
-import org.bukkit.event.block.BlockPistonExtendEvent
-import org.bukkit.event.block.BlockPistonRetractEvent
-import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.block.EntityBlockFormEvent
+import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -80,33 +73,37 @@ class Event : Listener {
     }
     @EventHandler
     fun onBreakAtRocket(event: BlockBreakEvent){
-        val loc = event.block.location.toVector()
-        loc.y = 0.0
-        event.isCancelled = RocketManager.rockets.find {
-            val rocketRawLoc = it.installedLocation
-            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
-            rocketLocation.y = 0.0
-            var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
-            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
-                check = false
-            }
-            check
-        } != null
+        if (!event.isCancelled){
+            val loc = event.block.location.toVector()
+            loc.y = 0.0
+            event.isCancelled = RocketManager.rockets.find {
+                val rocketRawLoc = it.installedLocation
+                val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+                rocketLocation.y = 0.0
+                var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
+                if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                    check = false
+                }
+                check
+            } != null
+        }
     }
     @EventHandler
     fun onPlaceAtRocket(event: BlockPlaceEvent){
-        val loc = event.block.location.toVector()
-        loc.y = 0.0
-        event.isCancelled = RocketManager.rockets.find {
-            val rocketRawLoc = it.installedLocation
-            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
-            rocketLocation.y = 0.0
-            var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
-            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
-                check = false
-            }
-            check
-        } != null
+        if (!event.isCancelled){
+            val loc = event.block.location.toVector()
+            loc.y = 0.0
+            event.isCancelled = RocketManager.rockets.find {
+                val rocketRawLoc = it.installedLocation
+                val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+                rocketLocation.y = 0.0
+                var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
+                if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                    check = false
+                }
+                check
+            } != null
+        }
     }
     @EventHandler
     fun onExplodeBlock(event: BlockExplodeEvent){
@@ -209,47 +206,53 @@ class Event : Listener {
     }
     @EventHandler
     fun onFlow(event: BlockFromToEvent){
-        val loc = event.block.location.toVector()
-        loc.y = 0.0
-        event.isCancelled = RocketManager.rockets.find {
-            val rocketRawLoc = it.installedLocation
-            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
-            rocketLocation.y = 0.0
-            var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
-            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
-                check = false
-            }
-            check
-        } != null
+        if (!event.isCancelled){
+            val loc = event.block.location.toVector()
+            loc.y = 0.0
+            event.isCancelled = RocketManager.rockets.find {
+                val rocketRawLoc = it.installedLocation
+                val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+                rocketLocation.y = 0.0
+                var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
+                if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                    check = false
+                }
+                check
+            } != null
+        }
     }
     @EventHandler
     fun onBucket(event: PlayerBucketEmptyEvent){
-        val loc = event.block.location.toVector()
-        loc.y = 0.0
-        event.isCancelled = RocketManager.rockets.find {
-            val rocketRawLoc = it.installedLocation
-            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
-            rocketLocation.y = 0.0
-            var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
-            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
-                check = false
-            }
-            check
-        } != null
+        if (!event.isCancelled){
+            val loc = event.block.location.toVector()
+            loc.y = 0.0
+            event.isCancelled = RocketManager.rockets.find {
+                val rocketRawLoc = it.installedLocation
+                val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+                rocketLocation.y = 0.0
+                var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
+                if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                    check = false
+                }
+                check
+            } != null
+        }
     }
     @EventHandler
     fun onTnt(event: EntityBlockFormEvent){
-        val loc = event.block.location.toVector()
-        loc.y = 0.0
-        event.isCancelled = RocketManager.rockets.find {
-            val rocketRawLoc = it.installedLocation
-            val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
-            rocketLocation.y = 0.0
-            var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
-            if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
-                check = false
-            }
-            check
-        } != null
+        if (!event.isCancelled){
+            val loc = event.block.location.toVector()
+            loc.y = 0.0
+            event.isCancelled = RocketManager.rockets.find {
+                val rocketRawLoc = it.installedLocation
+                val rocketLocation = Location(rocketRawLoc.world, rocketRawLoc.x, rocketRawLoc.y, rocketRawLoc.z)
+                rocketLocation.y = 0.0
+                var check = loc.distance(rocketLocation.toVector()) <= (it.modules.maxOf { m -> m.protectionRange })
+                if (check && (event.block.location.y > it.modules.sumOf { m -> m.sizeY } + it.installedLocation.y || (event.block.location.y < it.installedLocation.y))){
+                    check = false
+                }
+                check
+            } != null
+        }
     }
 }

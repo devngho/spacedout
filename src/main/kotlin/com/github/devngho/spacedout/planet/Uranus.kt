@@ -15,7 +15,6 @@ import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.equipment.Equipment
 import com.github.devngho.spacedout.equipment.Jetpack
 import com.github.devngho.spacedout.equipment.OxygenMask
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import org.bukkit.GameRule
 import org.bukkit.Material
 import org.bukkit.World
@@ -68,12 +67,10 @@ class Uranus : Planet{
         configurationSection.set("graphicmaterial", "ICE")
     }
 
-    override fun loadPlanetConfig(configurationSection: ConfigurationSection): Boolean {
-        if (!configurationSection.contains("position")) return true
+    override fun loadPlanetConfig(configurationSection: ConfigurationSection) {
         pos = configurationSection.getDouble("position", 19.2)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "ICE")!!.uppercase(), false) ?: Material.ICE
         worldBorderSize = configurationSection.getDouble("worldbordersize", 512.0)
-        return false
     }
 
     override val codeName: String = "uranus"

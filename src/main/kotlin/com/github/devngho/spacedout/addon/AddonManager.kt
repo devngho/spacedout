@@ -45,6 +45,7 @@ object AddonManager {
             ModuleManager.modules += LavaEngine()
             ModuleManager.modules += BigLavaEngine()
             ModuleManager.modules += GunpowderEngine()
+            ModuleManager.modules += TNTEngine()
             ModuleManager.modules += ControlModule()
             ModuleManager.modules += StandardNosecone()
 

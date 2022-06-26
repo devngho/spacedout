@@ -19,18 +19,15 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import com.github.devngho.spacedout.util.Pair
-import de.tr7zw.nbtinjector.javassist.NotFoundException
 import net.kyori.adventure.text.Component
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.io.File
 
-class StandardNosecone : Module {
+class StandardNosecone(override var height: Int = 3, override var graphicMaterial: Material = Material.STONE_SLAB) : Module {
     override val id: String = "standardnosecone"
-    override var height: Int = 3
     override val buildRequires: List<Pair<Material, Int>> = listOf(Pair(Material.STONE, 10))
     override val sizeY: Int = 3
     override var name: String = "modules.${id}"
-    override var graphicMaterial: Material = Material.STONE_SLAB
     override val structure: Structure = StructureLoader.loadFromFile(File(Instance.plugin.dataFolder.absolutePath + File.separator + "resource/modules" + File.separator + "$id.json"))
     override val useStructure: Boolean = true
     override val protectionRange: Int = 3
@@ -49,15 +46,13 @@ class StandardNosecone : Module {
         configurationSection.set("graphicmaterial", "STONE_SLAB")
     }
 
-    override fun loadModuleConfig(configurationSection: ConfigurationSection): Boolean {
-        if (!configurationSection.contains("height")) return true
+    override fun loadModuleConfig(configurationSection: ConfigurationSection) {
         height = configurationSection.getInt("height", 3)
         graphicMaterial = Material.getMaterial(configurationSection.getString("graphicmaterial", "STONE_SLAB")!!.uppercase(), false) ?: Material.STONE_SLAB
-        return false
     }
 
     override fun newInstance(): Module {
-        return StandardNosecone()
+        return StandardNosecone(height, graphicMaterial)
     }
     override val addedAddon: Addon
         get() = AddonManager.spacedoutAddon

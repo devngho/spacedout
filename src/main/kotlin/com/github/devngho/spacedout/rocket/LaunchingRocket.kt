@@ -10,15 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 package com.github.devngho.spacedout.rocket
 
-import com.github.devngho.nplug.api.block.FallingBlock
-import com.github.devngho.nplug.api.block.FallingBlocks
+import com.github.devngho.nplug.api.entity.FallingBlock
+import com.github.devngho.nplug.api.entity.FallingBlocks
 import com.github.devngho.spacedout.Instance
 import com.github.devngho.spacedout.config.Config
+import com.github.devngho.spacedout.config.PlayerData.config
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.util.Vector
-import xyz.xenondevs.particle.ParticleBuilder
-import xyz.xenondevs.particle.ParticleEffect
 import kotlin.math.abs
 
 
@@ -29,7 +28,13 @@ class LaunchingRocket(val modules: List<Module>, val location: Location, landing
         modules.forEach { module ->
             if (module.useStructure){
                 val fallingBlocks = FallingBlocks.createFallingBlocks(module.structure!!.blocks.map {
-                    Pair(it.first, FallingBlock.createFallingBlock(it.second, location.clone(), Instance.plugin, false, location.world.players))
+                    Pair(it.first, FallingBlock.createFallingBlock(
+                        it.second,
+                        location.clone(),
+                        Instance.plugin,
+                        false,
+                        location.world.players.filter { p -> p.config?.get("use_falling", false) as? Boolean ?: false }.toMutableList())
+                    )
                 }.toMutableList(), location.clone(), Instance.plugin)
                 fallingBlocksPerModule.add(Pair(Vector(0.0, height.toDouble(), 0.0), fallingBlocks))
                 height += module.sizeY
@@ -48,13 +53,7 @@ class LaunchingRocket(val modules: List<Module>, val location: Location, landing
                     Pair(it.first, it.second)
                 }.toMutableList()
                 location.y += (tick / 60.0) * (tick / 60.0)
-                ParticleBuilder(ParticleEffect.FLAME, location)
-                    .setOffsetY(1f)
-                    .setAmount(30)
-                    .setOffsetX(0.25f)
-                    .setOffsetZ(0.25f)
-                    .setSpeed(0.1f)
-                    .display()
+                location.world.spawnParticle(Particle.FLAME, location, 10)
                 tick += 1
             }, 0, 1)
         }else{
@@ -83,5 +82,14 @@ class LaunchingRocket(val modules: List<Module>, val location: Location, landing
                 it.second.remove()
             }
         }, Config.configConfiguration.getLong("rocket.fallinglaunchtick", 100))
+    }
+
+    @Suppress("unused")
+    fun refresh(){
+        fallingBlocksPerModule.forEach {
+            it.second.fallingBlocks.forEach { v ->
+                v.second.refreshPlayersForce()
+            }
+        }
     }
 }

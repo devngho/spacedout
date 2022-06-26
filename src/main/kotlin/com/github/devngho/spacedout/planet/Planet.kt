@@ -73,9 +73,8 @@ interface Planet {
     /**
      * 행성의 설정 값을 읽어들입니다.
      * @param configurationSection 해당 행성의 컨피그 섹션입니다.
-     * @return 초기화해야 할 때 호출하세요.
      */
-    fun loadPlanetConfig(configurationSection: ConfigurationSection): Boolean
+    fun loadPlanetConfig(configurationSection: ConfigurationSection)
 
     /**
      * 행성을 추가한 애드온입니다.
