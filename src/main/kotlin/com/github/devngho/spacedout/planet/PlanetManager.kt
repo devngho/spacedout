@@ -50,4 +50,8 @@ object PlanetManager {
     fun registerPlanet(planet: Planet, world: World){
         planets += Pair(planet, world)
     }
+
+    fun World.asPlanet(): Planet?{
+        return planets.find { it.second?.uid == this.uid }?.first
+    }
 }

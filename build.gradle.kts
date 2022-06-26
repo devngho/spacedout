@@ -25,8 +25,8 @@ dependencies {
     compileOnly(kotlin("stdlib"))
     compileOnly(kotlin("reflect"))
 
-    compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
-    compileOnly("dev.jorel.CommandAPI:commandapi-core:8.1.0")
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
+    compileOnly("dev.jorel.CommandAPI:commandapi-core:8.4.0")
 }
 
 java {
@@ -50,14 +50,14 @@ tasks {
         finalizedBy(shadowJar)
     }
     runServer {
-        minecraftVersion("1.18.2")
+        minecraftVersion("1.19")
     }
 }
 
 bukkit {
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     main = "com.github.devngho.spacedout.Plugin"
-    apiVersion = "1.18"
+    apiVersion = "1.19"
     authors = listOf("ngho")
     depend = listOf("CommandAPI")
     libraries = listOf("org.jetbrains.kotlin:kotlin-reflect:1.6.10", "org.jetbrains.kotlin:kotlin-stdlib:1.6.10")

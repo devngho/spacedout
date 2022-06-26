@@ -10,21 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 package com.github.devngho.spacedout
 
-import com.github.devngho.nplug.impl.nms.NMSVersion
 import com.github.devngho.spacedout.addon.AddonManager
 import com.github.devngho.spacedout.config.*
-import com.github.devngho.spacedout.config.I18n.getLang
-import com.github.devngho.spacedout.config.PlayerData.config
 import com.github.devngho.spacedout.equipment.EquipmentManager
 import com.github.devngho.spacedout.equipment.toItemStack
 import com.github.devngho.spacedout.event.Event
 import com.github.devngho.spacedout.planet.PlanetManager
 import com.github.devngho.spacedout.rocket.*
-import com.github.devngho.spacedout.util.ComponentUtil.clear
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
-import dev.jorel.commandapi.arguments.ArgumentSuggestions
-import dev.jorel.commandapi.arguments.BooleanArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
@@ -52,36 +46,28 @@ class Plugin : JavaPlugin() {
     override fun onEnable() {
         super.onEnable()
 
-        //jar 분해해 리소스 해체
-        val jarFile = File("plugins/spacedout.jar")
-        if (!jarFile.exists()) {
-            logger.warning("spacedout plugin jar file name must be \"spacedout.jar\"")
-            server.pluginManager.disablePlugin(this)
-            return
-        }else{
-            //리소스 뜯기
-            val jar = JarFile(jarFile)
-            if (!dataFolder.exists()){
-                dataFolder.mkdir()
-                val enumEntries: Enumeration<*> = jar.entries()
-                while (enumEntries.hasMoreElements()) {
-                    val file = enumEntries.nextElement() as JarEntry
-                    val f = File(dataFolder.absolutePath + File.separator + file.name)
-                    if (file.isDirectory && file.name.contains("resource")) {
-                        f.mkdir()
-                        continue
-                    }else if(file.name.contains("resource")) {
-                        val `is`: InputStream = jar.getInputStream(file)
-                        val fos = FileOutputStream(f)
-                        while (`is`.available() > 0) {
-                            fos.write(`is`.read())
-                        }
-                        fos.close()
-                        `is`.close()
+        //리소스 뜯기
+        val jar = JarFile(this.file.absoluteFile)
+        if (!dataFolder.exists()) {
+            dataFolder.mkdir()
+            val enumEntries: Enumeration<*> = jar.entries()
+            while (enumEntries.hasMoreElements()) {
+                val file = enumEntries.nextElement() as JarEntry
+                val f = File(dataFolder.absolutePath + File.separator + file.name)
+                if (file.isDirectory && file.name.contains("resource")) {
+                    f.mkdir()
+                    continue
+                } else if (file.name.contains("resource")) {
+                    val ins: InputStream = jar.getInputStream(file)
+                    val fos = FileOutputStream(f)
+                    while (ins.available() > 0) {
+                        fos.write(ins.read())
                     }
+                    fos.close()
+                    ins.close()
                 }
-                jar.close()
             }
+            jar.close()
         }
 
         //수많은 Load
@@ -93,7 +79,7 @@ class Plugin : JavaPlugin() {
         PlanetManager.generateWorlds()
         RocketData.loadAll()
 
-        server.scheduler.scheduleSyncRepeatingTask(this, {RocketManager.tick()}, 0, 1)
+        server.scheduler.scheduleSyncRepeatingTask(this, { RocketManager.tick() }, 0, 1)
         server.pluginManager.registerEvents(Event(), this)
         val rocketInstallerRecipe = ShapedRecipe(NamespacedKey(this, "rocketinstaller"), rocketInstaller)
         rocketInstallerRecipe.shape("sis")
@@ -103,7 +89,6 @@ class Plugin : JavaPlugin() {
         EquipmentManager.equipments.forEach {
             server.addRecipe(it.recipe)
         }
-        server.logger.info("spacedout running on ${NMSVersion.nmsVersion}")
     }
 
     override fun onLoad() {
