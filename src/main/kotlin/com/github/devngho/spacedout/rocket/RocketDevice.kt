@@ -137,7 +137,7 @@ class RocketDevice(val engine: Engine, val installedLocation: Location, val uniq
      */
     val isControlModuleRodeEquipment: Boolean
         get() {
-            return if (isControlModuleRode){
+            return if (isControlModuleRode && reachPlanet != null){
                 modules.filterIsInstance<ControlModule>()
                     .map { Instance.server.getOfflinePlayer(it.ridedPlayer!!) }
                     .map {
